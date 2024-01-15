@@ -1,0 +1,263 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Apontamento.Views.Projetos"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf" 
+             x:Class="Apontamento.Views.Projetos.ApontamentoProjetos"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Loaded="OnLoaded">
+
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <syncfusion:SfTextInputLayout 
+            ContainerType="Outlined" 
+            Grid.Column="0" 
+            Grid.ColumnSpan="4"
+            Hint="Nome"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+            <TextBox x:Name="nomeFuncionario" IsEnabled="False"/>
+        </syncfusion:SfTextInputLayout>
+
+        <syncfusion:SfTextInputLayout
+            ContainerType="Outlined" 
+            Grid.Column="4" 
+            Grid.ColumnSpan="3"
+            Hint="Função"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+            <TextBox x:Name="funcaoFuncionario" IsEnabled="False"/>
+        </syncfusion:SfTextInputLayout>
+
+
+
+        <syncfusion:SfTextInputLayout 
+            ContainerType="Outlined" 
+            Grid.Column="0" 
+            Grid.Row="1"
+            Hint="Centro de Custo"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+
+            <syncfusion:SfTextBoxExt
+                x:Name="cmbIdTarefa"
+                SearchItemPath="Key"
+                ShowDropDownButton="false"
+                AutoCompleteMode="SuggestAppend"
+                AutoCompleteSource="{Binding CentroCustos}" 
+                SelectedValue="{Binding ComplementoCheckList.id_aprovado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                SelectedItemChanged="OncmbIdTarefaSelectionChanged" 
+                ShowSuggestionsOnFocus="True" ShowClearButton="True"/>
+
+        </syncfusion:SfTextInputLayout>
+
+        <syncfusion:SfTextInputLayout
+            ContainerType="Outlined" 
+            Grid.Column="1" 
+            Grid.Row="1"
+            Hint="Atividade"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+
+            <syncfusion:SfTextBoxExt
+                x:Name="cmbAtividade"
+                SearchItemPath="atividade"
+                ShowDropDownButton="false"
+                AutoCompleteMode="SuggestAppend"
+                AutoCompleteSource="{Binding Atividades}" 
+                SelectedItem="{Binding Atividade, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                SelectedValue="{Binding ComplementoCheckList.id_aprovado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                SelectedItemChanged="OncmbAtividadeSelectionChanged" 
+                ShowSuggestionsOnFocus="True" ShowClearButton="True"/>
+
+        </syncfusion:SfTextInputLayout>
+
+
+        <syncfusion:SfTextInputLayout
+            ContainerType="Outlined" 
+            Grid.Column="2" 
+            Grid.ColumnSpan="2"
+            Grid.Row="1"
+            Hint="Cliente / Tema"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+
+            <syncfusion:SfTextBoxExt
+                x:Name="centroCustoApontamento"
+                ShowDropDownButton="false"
+                AutoCompleteMode="SuggestAppend"
+                SelectedValue="{Binding ComplementoCheckList.id_aprovado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                SelectedItemChanged="OncentroCustoApontamentoSelectionChanged" 
+                ShowSuggestionsOnFocus="True" ShowClearButton="True"/>
+
+        </syncfusion:SfTextInputLayout>
+
+
+        <syncfusion:SfTextInputLayout
+            ContainerType="Outlined" 
+            Grid.Column="4" 
+            Grid.Row="1"
+            Hint="Data"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+
+            <syncfusion:DateTimeEdit x:Name="dataApontamento" Height="15" MinHeight="0"/>
+
+        </syncfusion:SfTextInputLayout>
+
+
+        <syncfusion:SfTextInputLayout
+            ContainerType="Outlined" 
+            Grid.Column="5" 
+            Grid.Row="1"
+            Hint="Hora Trabalhada"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+            <syncfusion:DoubleTextBox x:Name="totalHora" />
+        </syncfusion:SfTextInputLayout>
+
+
+
+
+        <syncfusion:SfTextInputLayout
+            ContainerType="Outlined" 
+            Grid.Column="0" 
+            Grid.ColumnSpan="4"
+            Grid.Row="2"
+            Hint="Descrição Atividade"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+            
+            <TextBox x:Name="DescricaoAtividade" IsEnabled="False"/>
+            
+        </syncfusion:SfTextInputLayout>
+
+
+        <syncfusion:SfTextInputLayout
+            ContainerType="Outlined" 
+            Grid.Column="4" 
+            Grid.ColumnSpan="2"
+            Grid.Row="2"
+            Hint="Observação"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+            <TextBox x:Name="observacao"/>
+        </syncfusion:SfTextInputLayout>
+
+        <syncfusion:ButtonAdv 
+            x:Name="buttonAdv" 
+            Label="GRAVAR" 
+            Grid.Row="2" 
+            Grid.Column="6" 
+            Width="80" 
+            SizeMode="Normal"
+            SmallIcon ="{x:Null}"
+            HorizontalAlignment="Left" Click="OnApontarHoraClick"/>
+
+        <syncfusion:SfDataGrid 
+            Grid.Column="0" 
+            Grid.ColumnSpan="4"
+            Grid.Row="3"
+            AutoGenerateColumns="False" 
+            AllowResizingColumns="True"
+            AllowDraggingColumns="True"
+            ColumnSizer="AutoWithLastColumnFill" AllowFiltering="True"
+            ShowRowHeader="True" 
+            ItemsSource="{Binding HorasApontadas}" 
+            SelectedItem="{Binding HoraApontada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            RowValidating="OnRowValidating">
+            <syncfusion:SfDataGrid.Columns>
+                <syncfusion:GridTextColumn HeaderText="Atividade" MappingName="desc_atividade"/>
+                <syncfusion:GridTextColumn HeaderText="Ciente / Tema" MappingName="cliente_tema"/>
+                <syncfusion:GridDateTimeColumn HeaderText="Data" MappingName="data"/>
+                <syncfusion:GridNumericColumn HeaderText="Semana" MappingName="semana" NumberDecimalDigits="0" ColumnSizer="Auto"/>
+                <syncfusion:GridNumericColumn HeaderText="Hora" MappingName="hora_trabalhada" AllowEditing="True"/>
+                <syncfusion:GridTextColumn HeaderText="Observação" MappingName="observacao"/>
+            </syncfusion:SfDataGrid.Columns>
+
+            <syncfusion:SfDataGrid.TableSummaryRows>
+                <syncfusion:GridTableSummaryRow  Title="Resumo: {TotalSum} Horas e {TotalQuantity} Tarefas Apontadas." ShowSummaryInRow="true">
+                    <syncfusion:GridTableSummaryRow.SummaryColumns>
+                        <syncfusion:GridSummaryColumn 
+                            Name="TotalSum"
+                            Format="'{Sum:n}'"
+                            MappingName="hora_trabalhada"
+                            SummaryType="DoubleAggregate" />
+                        <syncfusion:GridSummaryColumn 
+                            Name="TotalQuantity"
+                            MappingName="cod_linha"
+                            Format="'{Count:d}'"
+                            SummaryType="CountAggregate" />
+                    </syncfusion:GridTableSummaryRow.SummaryColumns>
+                </syncfusion:GridTableSummaryRow>
+            </syncfusion:SfDataGrid.TableSummaryRows>
+
+        </syncfusion:SfDataGrid>
+
+
+
+        <syncfusion:SfDataGrid 
+            Grid.Column="4" 
+            Grid.ColumnSpan="3"
+            Grid.Row="3"
+            AutoGenerateColumns="False" 
+            AllowResizingColumns="True"
+            AllowDraggingColumns="True"
+            ColumnSizer="Auto"
+            ShowRowHeader="True" 
+            ItemsSource="{Binding FuroProjetos}">
+            <syncfusion:SfDataGrid.Columns>
+                <syncfusion:GridDateTimeColumn HeaderText="Data" MappingName="data"/>
+                <syncfusion:GridTextColumn HeaderText="Dia" MappingName="dia"/>
+                <syncfusion:GridNumericColumn HeaderText="Ideal" MappingName="hora_minima"/>
+                <syncfusion:GridNumericColumn HeaderText="Total" MappingName="hora_trabalhada"/>
+                <syncfusion:GridNumericColumn HeaderText="Furo" MappingName="validacao_novo"/>
+            </syncfusion:SfDataGrid.Columns>
+
+        </syncfusion:SfDataGrid>
+
+
+
+
+
+
+
+    </Grid>
+
+</UserControl>
