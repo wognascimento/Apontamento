@@ -131,7 +131,11 @@
             HelperTextVisibility="Collapsed"
             Margin="5">
 
-            <syncfusion:DateTimeEdit x:Name="dataApontamento" Height="15" MinHeight="0"/>
+            <syncfusion:DateTimeEdit 
+                x:Name="dataApontamento"
+                Height="15" 
+                MinHeight="0" 
+                DateTimeChanged="dataApontamento_DateTimeChanged"/>
 
         </syncfusion:SfTextInputLayout>
 
@@ -197,11 +201,20 @@
             AutoGenerateColumns="False" 
             AllowResizingColumns="True"
             AllowDraggingColumns="True"
-            ColumnSizer="AutoWithLastColumnFill" AllowFiltering="True"
+            ColumnSizer="None" AllowFiltering="True"
             ShowRowHeader="True" 
             ItemsSource="{Binding HorasApontadas}" 
             SelectedItem="{Binding HoraApontada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             RowValidating="OnRowValidating">
+
+            <syncfusion:SfDataGrid.StackedHeaderRows>
+                <syncfusion:StackedHeaderRow>
+                    <syncfusion:StackedHeaderRow.StackedColumns>
+                        <syncfusion:StackedColumn ChildColumns="desc_atividade,cliente_tema,data,semana,hora_trabalhada,observacao" HeaderText="APONTAMENTO" MappingName="SalesDetails"/>
+                    </syncfusion:StackedHeaderRow.StackedColumns>
+                </syncfusion:StackedHeaderRow>
+            </syncfusion:SfDataGrid.StackedHeaderRows>
+            
             <syncfusion:SfDataGrid.Columns>
                 <syncfusion:GridTextColumn HeaderText="Atividade" MappingName="desc_atividade"/>
                 <syncfusion:GridTextColumn HeaderText="Ciente / Tema" MappingName="cliente_tema"/>
@@ -242,6 +255,16 @@
             ColumnSizer="Auto"
             ShowRowHeader="True" 
             ItemsSource="{Binding FuroProjetos}">
+
+            <syncfusion:SfDataGrid.StackedHeaderRows>
+                <syncfusion:StackedHeaderRow>
+                    <syncfusion:StackedHeaderRow.StackedColumns>
+                        <syncfusion:StackedColumn ChildColumns="data,dia,hora_minima,hora_trabalhada,hora_trabalhada,validacao_novo" HeaderText="FURO" MappingName="SalesDetails"/>
+                    </syncfusion:StackedHeaderRow.StackedColumns>
+                </syncfusion:StackedHeaderRow>
+            </syncfusion:SfDataGrid.StackedHeaderRows>
+
+            
             <syncfusion:SfDataGrid.Columns>
                 <syncfusion:GridDateTimeColumn HeaderText="Data" MappingName="data"/>
                 <syncfusion:GridTextColumn HeaderText="Dia" MappingName="dia"/>

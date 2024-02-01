@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace Apontamento.DataBase.Model
 {
-    [Table("qryfurohtprojetos", Schema = "ht")]
     [Keyless]
+    [Table("qryfurohtprojetos", Schema = "ht")]
     public class QryFuroApontamentoProjeto
     {
         public long? codfun { get; set; }

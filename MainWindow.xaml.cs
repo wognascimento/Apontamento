@@ -1,13 +1,18 @@
 ﻿using Apontamento.DataBase;
+using Apontamento.Views.Producao;
 using Apontamento.Views.Projetos;
+using Microsoft.EntityFrameworkCore;
 using Producao;
+using Syncfusion.Linq;
 using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Tools;
 using Syncfusion.Windows.Tools.Controls;
+using Syncfusion.XlsIO;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -197,6 +202,59 @@ namespace Apontamento
         private void OnDigitarApontamentoProjetosClick(object sender, RoutedEventArgs e)
         {
             adicionarFilho(new ApontamentoProjetos(), "APONTAMENTO PROJETOS", "ApontamentoProjetos");
+        }
+
+        private void OnDigitarApontamentoProducaoClick(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new ApontamentoProducao(), "APONTAMENTO PRODUCAO", "ApontamentoProducao");
+        }
+
+        private async void OnFuroProducaoClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                var data = await db.QryHtFuros.ToListAsync();
+
+
+                using ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs("Impressos/CONSULTA_FURO.xlsx");
+                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_FURO.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void OnControleFuncionarioPCP(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new ControleFuncionarioPCP(), "CONTROLE FUNCIONÁRIO P.C.P", "ControleFuncionarioPCP");
+            
+        }
+
+        private void OnImprimirProducaoClick(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

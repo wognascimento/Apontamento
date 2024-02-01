@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Apontamento" 
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
         mc:Ignorable="d"
-        Title="SISTEMA INTEGRADO DE GERENCIAMENTO - PRODUÇÃO"
+        Title="SISTEMA INTEGRADO DE GERENCIAMENTO - APONTAMENTO"
         Height="450" Width="800" WindowState="Maximized">
     
     <Grid>
@@ -25,16 +25,20 @@
             VerticalContentAlignment="Center">
 
             <syncfusion:MenuItemAdv Header="Produção">
+                <syncfusion:MenuItemAdv x:Name="DigitarProducao" Header="Apontar" Click="OnDigitarApontamentoProducaoClick"/>
+                <syncfusion:MenuItemAdv x:Name="ImprimirProducao" Header="Imprimir Ficha" Click="OnImprimirProducaoClick"/>
+                <syncfusion:MenuItemAdv Header="Consultas">
+                    <syncfusion:MenuItemAdv x:Name="htFuroProducao" Header="Furo" Click="OnFuroProducaoClick"/>
+                    <syncfusion:MenuItemAdv Header="Funcioários">
+                        <syncfusion:MenuItemAdv x:Name="funcionarioControle" Header="Controle P.C.P" Click="OnControleFuncionarioPCP"/>
+                    </syncfusion:MenuItemAdv>
+                </syncfusion:MenuItemAdv>
                 
-            </syncfusion:MenuItemAdv>
-
-            <syncfusion:MenuItemAdv Header="P.C.P">
-
             </syncfusion:MenuItemAdv>
 
 
             <syncfusion:MenuItemAdv Header="Projetos">
-                <syncfusion:MenuItemAdv x:Name="Digitar" Header="Digitar" Click="OnDigitarApontamentoProjetosClick"/>
+                <syncfusion:MenuItemAdv x:Name="DigitarProjetos" Header="Apontar" Click="OnDigitarApontamentoProjetosClick"/>
             </syncfusion:MenuItemAdv>
 
         </syncfusion:MenuAdv>

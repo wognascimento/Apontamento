@@ -68,7 +68,7 @@ namespace Apontamento.Views.Projetos
                 vm.Atividades = await Task.Run( () => vm.GetAtividadesAsync(centroCusto) );
                 cmbAtividade.Text = string.Empty;
                 centroCustoApontamento.Text = string.Empty;
-                DescricaoAtividade.Text += string.Empty;
+                DescricaoAtividade.Text = string.Empty;
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
             catch (Exception ex)
@@ -86,7 +86,8 @@ namespace Apontamento.Views.Projetos
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
                 ApontamentoProjetosViewModel vm = (ApontamentoProjetosViewModel)DataContext;
                 centroCustoApontamento.Text = string.Empty;
-                DescricaoAtividade.Text += string.Empty;
+                DescricaoAtividade.Text = string.Empty;
+
                 if (vm?.Atividade?.tipo_custo == "CLIENTE")
                 {
                     vm.Clientes = await Task.Run(vm.GetClientesAsync);
@@ -138,7 +139,15 @@ namespace Apontamento.Views.Projetos
                 ApontamentoProjetosViewModel vm = (ApontamentoProjetosViewModel)DataContext;
                 DataBaseSettings BaseSettings = DataBaseSettings.Instance;
                 var dtApontamento = dataApontamento.DateTime;
-                var semana = await Task.Run(() => vm.GetSemanaAsync(dtApontamento));
+                var semana = await Task.Run(() => vm.GetSemanaAsync(dtApontamento.Value.Date));
+
+                if (semana == null)
+                {
+                    Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                    MessageBox.Show("Não foi possivel identificar a semana da data selecionada. \n Selecione a data novamente e tente Gravar.", "Semana");
+                    return;
+                }
+
                 var apontamento = new ApontamentoHoraModel
                 {
                     cod_func = vm.FuncProjeto.cod_func,
@@ -163,7 +172,8 @@ namespace Apontamento.Views.Projetos
                 cmbIdTarefa.Text = string.Empty;
                 cmbIdTarefa.Focus();
 
-                vm.HorasApontadas = await Task.Run(() => vm.GetHorasApontadasAsync(apontamento.data.Value, vm.FuncProjeto.cod_func));
+                vm.HorasApontadas = await Task.Run(() => vm.GetHorasApontadasAsync(apontamento.data.Value.Date, vm.FuncProjeto.cod_func));
+                vm.FuroProjetos = await Task.Run(() => vm.GetFuroProjetosAsync(vm.FuncProjeto.cod_func));
 
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
@@ -193,8 +203,26 @@ namespace Apontamento.Views.Projetos
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
         }
+
+        private async void dataApontamento_DateTimeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            try
+            {
+                ApontamentoProjetosViewModel vm = (ApontamentoProjetosViewModel)DataContext;
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+                var dtApontamento = e.NewValue as DateTime?;
+                vm.HorasApontadas = await Task.Run(() => vm.GetHorasApontadasAsync(dtApontamento, vm?.FuncProjeto?.cod_func));
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex?.InnerException?.Message, "Erro ao inserir", MessageBoxButton.OK, MessageBoxImage.Error);
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+        }
+
     }
-    }
+
 
     public class ApontamentoProjetosViewModel : INotifyPropertyChanged
     {
@@ -394,8 +422,9 @@ namespace Apontamento.Views.Projetos
             try
             {
                 using DatabaseContext db = new();
-                db.ApontamentoHoras.Add(apontamento);
-                db.SaveChanges();
+                await db.ApontamentoHoras.SingleMergeAsync(apontamento);
+                //await db.ApontamentoHoras.BulkMergeAsync(apontamento);
+                await db.SaveChangesAsync();
             }
             catch (Exception)
             {
@@ -458,3 +487,4 @@ namespace Apontamento.Views.Projetos
 
     }
 }
+

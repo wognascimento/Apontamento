@@ -32,5 +32,9 @@ namespace Apontamento.DataBase
         public DbSet<DataPlanejamentoModel> DataPlanejamentos { get; set; }
         public DbSet<QryApontamentoHoraModel> QryApontamentos { get; set; }
         public DbSet<QryFuroApontamentoProjeto> QryFuroApontamentoProjetos { get; set; }
+        public DbSet<FuncionarioAtivoModel> FuncionarioAtivos { get; set; }
+        public DbSet<FuncionarioModel> Funcionarios { get; set; }
+        public DbSet<HtModel> Hts { get; set; }
+        public DbSet<QryHtFuroGeralModel> QryHtFuros { get; set; }
     }
 }

@@ -1,0 +1,172 @@
+﻿<UserControl x:Class="Apontamento.Views.Producao.ApontamentoProducao"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Apontamento.Views.Producao" 
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Loaded="UserControl_Loaded">
+    
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Height="auto">
+
+            <syncfusion:SfTextInputLayout
+                ContainerType="Outlined" 
+                Hint="Data"
+                InputViewPadding="4"
+                CharCountVisibility="Collapsed"
+                HelperTextVisibility="Collapsed"
+                Margin="5">
+                <syncfusion:DateTimeEdit 
+                    x:Name="dataApontamento" 
+                    Height="15" 
+                    MinHeight="0" 
+                    DateTimeChanged="dataApontamento_DateTimeChanged"/>
+            </syncfusion:SfTextInputLayout>
+
+            <syncfusion:SfTextInputLayout 
+                ContainerType="Outlined" 
+                Hint="Semana"
+                InputViewPadding="4"
+                CharCountVisibility="Collapsed"
+                HelperTextVisibility="Collapsed"
+                Margin="5">
+                <TextBox x:Name="SemanaApontamento" IsEnabled="False" TextAlignment="Center"/>
+            </syncfusion:SfTextInputLayout>
+
+
+        </StackPanel>
+
+        <syncfusion:SfTextInputLayout 
+            ContainerType="Outlined" 
+            Grid.Row="1" 
+            Hint="Funcionário"
+            InputViewPadding="4"
+            CharCountVisibility="Collapsed"
+            HelperTextVisibility="Collapsed"
+            Margin="5">
+            
+            <syncfusion:SfTextBoxExt 
+                x:Name="nomeFuncionario" 
+                SearchItemPath="nome_apelido"
+                ShowDropDownButton="false"
+                AutoCompleteMode="SuggestAppend"
+                AutoCompleteSource="{Binding Funcionarios}" 
+                SelectedValue="{Binding Funcionario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                SelectedItemChanged="OnFuncionariosSelectionChanged" 
+                ShowSuggestionsOnFocus="True" 
+                ShowClearButton="True"/>
+            
+        </syncfusion:SfTextInputLayout>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Height="auto">
+
+            <syncfusion:SfDataGrid 
+                x:Name="DGDigitacao" 
+                AutoGenerateColumns="False" 
+                AllowResizingColumns="True"
+                AllowDraggingColumns="True"
+              
+                ShowRowHeader="True" 
+                ItemsSource="{Binding Hts}" 
+                SelectedItem="{Binding Ht, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                RowValidating="OnRowValidating" 
+                AddNewRowPosition="Bottom" 
+                AddNewRowInitiating="SfDataGrid_AddNewRowInitiating" 
+                Margin="0,0,6,0">
+
+                <syncfusion:SfDataGrid.StackedHeaderRows>
+                    <syncfusion:StackedHeaderRow>
+                        <syncfusion:StackedHeaderRow.StackedColumns>
+                            <syncfusion:StackedColumn ChildColumns="num_os,quantidadehorastrabalhadas,cod" HeaderText="Apontamento" MappingName="SalesDetails"/>
+                        </syncfusion:StackedHeaderRow.StackedColumns>
+                    </syncfusion:StackedHeaderRow>
+                </syncfusion:SfDataGrid.StackedHeaderRows>
+
+                <syncfusion:SfDataGrid.Columns>
+                    <syncfusion:GridNumericColumn HeaderText="OS" MappingName="num_os" NumberDecimalDigits="0"/>
+                    <syncfusion:GridNumericColumn HeaderText="HT" MappingName="quantidadehorastrabalhadas"/>
+                    <syncfusion:GridNumericColumn HeaderText="COD" MappingName="cod" NumberDecimalDigits="0" AllowEditing="False"/>
+                </syncfusion:SfDataGrid.Columns>
+
+                <syncfusion:SfDataGrid.TableSummaryRows>
+                    <syncfusion:GridTableSummaryRow  Title="Resumo: {TotalSum} Horas e {TotalQuantity} Tarefas Apontadas." ShowSummaryInRow="true">
+                        <syncfusion:GridTableSummaryRow.SummaryColumns>
+                            <syncfusion:GridSummaryColumn 
+                                Name="TotalSum"
+                                Format="'{Sum:n}'"
+                                MappingName="quantidadehorastrabalhadas"
+                                SummaryType="DoubleAggregate" />
+                            <syncfusion:GridSummaryColumn 
+                                Name="TotalQuantity"
+                                MappingName="cod_linha"
+                                Format="'{Count:d}'"
+                                SummaryType="CountAggregate" />
+                        </syncfusion:GridTableSummaryRow.SummaryColumns>
+                    </syncfusion:GridTableSummaryRow>
+                </syncfusion:SfDataGrid.TableSummaryRows>
+
+            </syncfusion:SfDataGrid>
+
+            <syncfusion:SfDataGrid 
+                AutoGenerateColumns="False" 
+                AllowResizingColumns="True"
+                AllowDraggingColumns="True"
+                ShowRowHeader="True" 
+                ItemsSource="{Binding FutoHts}" 
+                SelectedItem="{Binding FuroHt, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                Margin="5,0,0,0" 
+                MouseDoubleClick="SfDataGrid_MouseDoubleClick">
+
+                <syncfusion:SfDataGrid.StackedHeaderRows>
+                    <syncfusion:StackedHeaderRow>
+                        <syncfusion:StackedHeaderRow.StackedColumns>
+                            <syncfusion:StackedColumn ChildColumns="data_ideal,ht_ideal,ht_furo" HeaderText="Furo" MappingName="SalesDetails"/>
+                        </syncfusion:StackedHeaderRow.StackedColumns>
+                    </syncfusion:StackedHeaderRow>
+                </syncfusion:SfDataGrid.StackedHeaderRows>
+
+                <syncfusion:SfDataGrid.Columns>
+                    <syncfusion:GridDateTimeColumn MappingName="data_ideal"/>
+                    <syncfusion:GridNumericColumn MappingName="ht_ideal"/>
+                    <syncfusion:GridNumericColumn MappingName="ht_furo"/>
+                </syncfusion:SfDataGrid.Columns>
+
+                <syncfusion:SfDataGrid.TableSummaryRows>
+                    <syncfusion:GridTableSummaryRow  Title="Total: {TotalSum} Horas e {TotalQuantity} Furos." ShowSummaryInRow="true">
+                        <syncfusion:GridTableSummaryRow.SummaryColumns>
+                            <syncfusion:GridSummaryColumn 
+                    Name="TotalSum"
+                    Format="'{Sum:n}'"
+                    MappingName="ht_furo"
+                    SummaryType="DoubleAggregate" />
+                            <syncfusion:GridSummaryColumn 
+                    Name="TotalQuantity"
+                    MappingName="cod_linha"
+                    Format="'{Count:d}'"
+                    SummaryType="CountAggregate" />
+                        </syncfusion:GridTableSummaryRow.SummaryColumns>
+                    </syncfusion:GridTableSummaryRow>
+                </syncfusion:SfDataGrid.TableSummaryRows>
+
+            </syncfusion:SfDataGrid>
+
+        </StackPanel>
+
+
+
+
+
+    </Grid>
+    
+</UserControl>
