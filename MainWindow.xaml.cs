@@ -3,27 +3,17 @@ using Apontamento.Views.Producao;
 using Apontamento.Views.Projetos;
 using Microsoft.EntityFrameworkCore;
 using Producao;
-using Syncfusion.Linq;
 using Syncfusion.SfSkinManager;
-using Syncfusion.Windows.Tools;
 using Syncfusion.Windows.Tools.Controls;
 using Syncfusion.XlsIO;
+using Syncfusion.XlsIO.Implementation.Security;
 using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Telerik.Windows.Controls;
 using SizeMode = Syncfusion.SfSkinManager.SizeMode;
 
@@ -204,11 +194,6 @@ namespace Apontamento
             adicionarFilho(new ApontamentoProjetos(), "APONTAMENTO PROJETOS", "ApontamentoProjetos");
         }
 
-        private void OnDigitarApontamentoProducaoClick(object sender, RoutedEventArgs e)
-        {
-            adicionarFilho(new ApontamentoProducao(), "APONTAMENTO PRODUCAO", "ApontamentoProducao");
-        }
-
         private async void OnFuroProducaoClick(object sender, RoutedEventArgs e)
         {
             try
@@ -254,7 +239,77 @@ namespace Apontamento
 
         private void OnImprimirProducaoClick(object sender, RoutedEventArgs e)
         {
+            adicionarFilho(new ImprimirFicha(), "IMPRIMIR FICHA", "ImprimirFicha");
+        }
 
+        private void OnDigitarApontamentoProducaoFuncionarioClick(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new ApontamentoProducao(), "APONTAMENTO PRODUCAO", "ApontamentoProducao");
+        }
+
+        private void OnDigitarApontamentoProducaoSemanaClick(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new ApontamentoProducaoSemana(), "APONTAMENTO PRODUCAO POR SEMANA", "ApontamentoProducaoSemana");
+        }
+
+        private void OnDigitarApontamentoProducaoSetorClick(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private async void OnApontamentoProjetosFuroClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                //var data = await db.QryFuroApontamentoProjetos.ToListAsync();
+                /*var data = await db.QryFuroApontamentoProjetos
+                    .OrderBy(c => c.data)
+                    .Where(c => c.codfun == cod_func)
+                    .ToArrayAsync();
+                */
+
+                var data = await db.QryFuroApontamentoProjetos
+                    .Join(db.FuncionarioProjetos, apontamento => apontamento.codfun, funcionario => funcionario.cod_func, (apontamento, funcionario) => 
+                    new
+                    {
+                        funcionario.nome_func,
+                        apontamento.data,
+                        minima = apontamento.hora_minima,
+                        trabalhada = apontamento.hora_trabalhada,
+                        furo = apontamento.verificacao_novo
+                    })
+                    .OrderBy(resultado => resultado.nome_func)
+                    .ThenBy(resultado => resultado.data)
+                    .ToListAsync();
+
+                using ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs("Impressos/CONSULTA_FURO_PROJETOS.xlsx");
+                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_FURO_PROJETOS.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }

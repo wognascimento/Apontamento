@@ -13,9 +13,13 @@
     <None Remove="icones\icons8-usu_0025c3_0025a1rio-de-g_0025c3_0025aanero-neutro-windows-metro-16.png" />
     <None Remove="icones\logo.ico" />
     <None Remove="icones\logo.png" />
+    <None Remove="ModelosImpressoes\MODELO-FICHA-APONTAMENTO.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="icones\logo.ico" />
+    <Content Include="ModelosImpressoes\MODELO-FICHA-APONTAMENTO.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />

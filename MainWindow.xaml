@@ -25,7 +25,11 @@
             VerticalContentAlignment="Center">
 
             <syncfusion:MenuItemAdv Header="Produção">
-                <syncfusion:MenuItemAdv x:Name="DigitarProducao" Header="Apontar" Click="OnDigitarApontamentoProducaoClick"/>
+                <syncfusion:MenuItemAdv x:Name="DigitarProducao" Header="Apontar">
+                    <syncfusion:MenuItemAdv Header="Funcionário" Click="OnDigitarApontamentoProducaoFuncionarioClick"/>
+                    <syncfusion:MenuItemAdv Header="Semana" Click="OnDigitarApontamentoProducaoSemanaClick"/>
+                    <syncfusion:MenuItemAdv Header="Setor" Click="OnDigitarApontamentoProducaoSetorClick"/>
+                </syncfusion:MenuItemAdv>
                 <syncfusion:MenuItemAdv x:Name="ImprimirProducao" Header="Imprimir Ficha" Click="OnImprimirProducaoClick"/>
                 <syncfusion:MenuItemAdv Header="Consultas">
                     <syncfusion:MenuItemAdv x:Name="htFuroProducao" Header="Furo" Click="OnFuroProducaoClick"/>
@@ -39,6 +43,7 @@
 
             <syncfusion:MenuItemAdv Header="Projetos">
                 <syncfusion:MenuItemAdv x:Name="DigitarProjetos" Header="Apontar" Click="OnDigitarApontamentoProjetosClick"/>
+                <syncfusion:MenuItemAdv Header="Pendência Geral" Click="OnApontamentoProjetosFuroClick"/>
             </syncfusion:MenuItemAdv>
 
         </syncfusion:MenuAdv>
