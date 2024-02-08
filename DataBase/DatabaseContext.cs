@@ -24,10 +24,17 @@ namespace Apontamento.DataBase
             optionsBuilder.EnableSensitiveDataLogging();
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DataPlanProjetoModel>()
+                .HasKey(a => new { a.codfun, a.dia });
+        }
+
         public DbSet<TarefaProjetosModel> TarefaProjetos { get; set; }
         public DbSet<ClienteModel> Clientes { get; set; }
         public DbSet<TemaModel> Temas { get; set; }
         public DbSet<FuncionarioProjetosModel> FuncionarioProjetos { get; set; }
+        public DbSet<DataPlanProjetoModel> DataPlanProjetos { get; set; }
         public DbSet<ApontamentoHoraModel> ApontamentoHoras { get; set; }
         public DbSet<DataPlanejamentoModel> DataPlanejamentos { get; set; }
         public DbSet<QryApontamentoHoraModel> QryApontamentos { get; set; }

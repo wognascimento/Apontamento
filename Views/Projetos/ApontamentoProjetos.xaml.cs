@@ -1,9 +1,7 @@
 ﻿using Apontamento.DataBase;
 using Apontamento.DataBase.Model;
 using Microsoft.EntityFrameworkCore;
-using Syncfusion.DocIO.DLS;
 using Syncfusion.Windows.Controls.Input;
-using Syncfusion.XlsIO.Implementation.Security;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

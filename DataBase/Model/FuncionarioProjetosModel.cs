@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,5 +21,8 @@ namespace Apontamento.DataBase.Model
         public string? departamento { get; set; }
         public string? ferias_apontadas { get; set; }
         public string? cracha { get; set; }
+
+        // Relacionamento um-para-muitos com DataPlanProjetoModel
+        public ICollection<DataPlanProjetoModel> PlanosProjetos { get; set; }
     }
 }

@@ -117,7 +117,7 @@ namespace Apontamento.Views.Producao
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
                 vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(((HtModel)e.RowData)));
-                //vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm.Semana));
+                vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm.Semana));
                 ((HtModel)e.RowData).cod = vm.Ht.cod;
                 sfdatagrid.View.Refresh();
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });

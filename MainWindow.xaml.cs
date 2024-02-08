@@ -311,5 +311,10 @@ namespace Apontamento
                 MessageBox.Show(ex.Message);
             }
         }
+
+        private void OnApontamentoCadastroFuncionarioProjetosClick(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new CadastroFuncionarioProjetos(), "CADASTRO FUNCIONÁRIO", "ApontamentoProjetosCadastroFuncionario");
+        }
     }
 }

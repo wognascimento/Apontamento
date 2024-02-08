@@ -44,6 +44,7 @@
             <syncfusion:MenuItemAdv Header="Projetos">
                 <syncfusion:MenuItemAdv x:Name="DigitarProjetos" Header="Apontar" Click="OnDigitarApontamentoProjetosClick"/>
                 <syncfusion:MenuItemAdv Header="Pendência Geral" Click="OnApontamentoProjetosFuroClick"/>
+                <syncfusion:MenuItemAdv Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioProjetosClick"/>
             </syncfusion:MenuItemAdv>
 
         </syncfusion:MenuAdv>
