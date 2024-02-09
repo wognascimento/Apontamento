@@ -32,7 +32,9 @@
                 </syncfusion:MenuItemAdv>
                 <syncfusion:MenuItemAdv x:Name="ImprimirProducao" Header="Imprimir Ficha" Click="OnImprimirProducaoClick"/>
                 <syncfusion:MenuItemAdv Header="Consultas">
-                    <syncfusion:MenuItemAdv x:Name="htFuroProducao" Header="Furo" Click="OnFuroProducaoClick"/>
+                    <syncfusion:MenuItemAdv Header="Furo" Click="OnFuroProducaoClick"/>
+                    <syncfusion:MenuItemAdv Header="Apontamentos" Click="OnApontamentosProducaoClick"/>
+                    <syncfusion:MenuItemAdv Header="Setores" Click="OnSetoresProducaoClick"/>
                     <syncfusion:MenuItemAdv Header="Funcioários">
                         <syncfusion:MenuItemAdv x:Name="funcionarioControle" Header="Controle P.C.P" Click="OnControleFuncionarioPCP"/>
                     </syncfusion:MenuItemAdv>

@@ -43,5 +43,7 @@ namespace Apontamento.DataBase
         public DbSet<FuncionarioModel> Funcionarios { get; set; }
         public DbSet<HtModel> Hts { get; set; }
         public DbSet<QryHtFuroGeralModel> QryHtFuros { get; set; }
+        public DbSet<SetorModel> Setores { get; set; }
+        public DbSet<ApontamentoGeralModel> ApontamentosGeral { get; set; }
     }
 }

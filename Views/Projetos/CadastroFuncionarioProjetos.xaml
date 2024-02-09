@@ -10,7 +10,7 @@
 
     <Grid>
 
-        <syncfusion:SfDataGrid 
+        <syncfusion:SfDataGrid
             x:Name="dgFuncionarios" 
             AddNewRowPosition="Bottom" 
             AllowEditing="True" 
@@ -18,7 +18,12 @@
             AutoGenerateColumns="False"
             AutoGenerateRelations="True"
             ColumnSizer="Auto"
-            ItemsSource="{Binding FuncProjetos}" CurrentCellDropDownSelectionChanged="SfDataGrid_CurrentCellDropDownSelectionChanged" RowValidated="dgFuncionarios_RowValidated" RowValidating="dgFuncionarios_RowValidating" AddNewRowInitiating="dgFuncionarios_AddNewRowInitiating">
+            ItemsSource="{Binding FuncProjetos}" 
+            SelectedItem="{Binding FuncProjeto}"
+            CurrentCellDropDownSelectionChanged="SfDataGrid_CurrentCellDropDownSelectionChanged" 
+            RowValidated="dgFuncionarios_RowValidated" 
+            RowValidating="dgFuncionarios_RowValidating" 
+            AddNewRowInitiating="dgFuncionarios_AddNewRowInitiating">
             
             <syncfusion:SfDataGrid.Columns>
                 <syncfusion:GridMultiColumnDropDownList
@@ -48,7 +53,7 @@
                         <syncfusion:SfDataGrid 
                             x:Name="FirstLevelNestedGrid"
                             AllowEditing="True"
-                            AutoGenerateColumns="False">
+                            AutoGenerateColumns="False" RowValidated="FirstLevelNestedGrid_RowValidated" RowValidating="FirstLevelNestedGrid_RowValidating">
                             <syncfusion:SfDataGrid.Columns>
                                 <syncfusion:GridTextColumn MappingName="dia" AllowEditing="False"/>
                                 <syncfusion:GridTextColumn MappingName="hora_minima" />
@@ -57,6 +62,18 @@
                     </syncfusion:GridViewDefinition.DataGrid>
                 </syncfusion:GridViewDefinition>
             </syncfusion:SfDataGrid.DetailsViewDefinition>
+
+            <syncfusion:SfDataGrid.RecordContextMenu>
+                <ContextMenu Style="{x:Null}">
+                    
+                    <MenuItem Header="Apontar Férias" 
+                              Command="{Binding Source={x:Static Member=local:ContextMenuCommands.Cut}}"
+                              CommandParameter="{Binding}" />
+                    
+                    <MenuItem Header="Apontar não trabalhada"  />
+
+                </ContextMenu>
+            </syncfusion:SfDataGrid.RecordContextMenu>
 
         </syncfusion:SfDataGrid>
 

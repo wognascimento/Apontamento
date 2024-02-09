@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Syncfusion.Data;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.ScrollAxis;
+using Syncfusion.UI.Xaml.Utility;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -15,6 +16,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Telerik.Windows.Controls.Scheduling;
 using Telerik.Windows.Controls.TreeMap;
+using Telerik.Windows.Documents.Spreadsheet.Expressions.Functions;
 
 namespace Apontamento.Views.Projetos
 {
@@ -120,6 +122,28 @@ namespace Apontamento.Views.Projetos
             ((FuncionarioProjetosModel)e.NewObject).departamento = "PROJETOS";
             //((FuncionarioProjetosModel)e.NewObject).cadastrado_por = Environment.UserName;
             //((FuncionarioProjetosModel)e.NewObject).inclusao = DateTime.Now;
+        }
+
+        private async void FirstLevelNestedGrid_RowValidated(object sender, RowValidatedEventArgs e)
+        {
+            try
+            {
+                CadastroFuncionarioProjetosViewModel vm = (CadastroFuncionarioProjetosViewModel)DataContext;
+                var sfdatagrid = sender as SfDataGrid;
+                if (e.RowIndex > -1) //RowIndex = 2
+                    await Task.Run(() => vm.AlterarDataPlanejamentoFuncionarioProjetosAsync((DataPlanProjetoModel)e.RowData));
+
+                //vm.FuncProjetos = await Task.Run(vm.GetFuncionariosProjetoAsync);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void FirstLevelNestedGrid_RowValidating(object sender, RowValidatingEventArgs e)
+        {
+
         }
     }
 
@@ -241,7 +265,142 @@ namespace Apontamento.Views.Projetos
                 throw;
             }
         }
+
+        public async Task AlterarDataPlanejamentoFuncionarioProjetosAsync(DataPlanProjetoModel dataPlanejamento)
+        {
+            try
+            {
+                using DatabaseContext db = new();
+                db.DataPlanProjetos.Update(dataPlanejamento);
+                await db.SaveChangesAsync();
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task GravarFeriasFuncionarioProjetosAsync(FuncionarioProjetosModel funcionario)
+        {
+            using var dbContext = new DatabaseContext();
+            var executionStrategy = dbContext.Database.CreateExecutionStrategy();
+            await executionStrategy.ExecuteAsync(async () =>
+            {
+                using var transaction = dbContext.Database.BeginTransaction();
+                try
+                {
+                    var resultado = await dbContext.FuncionarioProjetos
+                        .Join(dbContext.DataPlanProjetos,
+                              funcionario => funcionario.cod_func,
+                              dataplan => dataplan.codfun,
+                              (funcionario, dataplan) => new { Funcionario = funcionario, DataPlan = dataplan })
+                        .Join(dbContext.DataPlanejamentos,
+                              dataPlan => dataPlan.DataPlan.dia,
+                              dataPlanejamento => dataPlanejamento.dia,
+                              (dataPlan, dataPlanejamento) => new
+                              {
+                                  dataPlan.Funcionario.cod_func,
+                                  dataPlanejamento.dia,
+                                  dataPlanejamento.data,
+                                  dataPlan.Funcionario.incio_ferias,
+                                  dataPlan.Funcionario.termino_ferias,
+                                  dataPlan.DataPlan.hora_minima,
+                                  dataPlan.Funcionario.nome_func,
+                                  dataPlanejamento.semana,
+                                  dataPlan.Funcionario.departamento,
+                                  dataPlan.Funcionario.data_demissao
+                              })
+                        .Where(resultado => resultado.data >= funcionario.incio_ferias && resultado.data <= funcionario.termino_ferias && resultado.cod_func == funcionario.cod_func )
+                        .ToListAsync();
+
+                    //var apontamentoHoraModelArray = new ApontamentoHoraModel[]
+
+                    var apontamentoHoraModelArray = new ObservableCollection<ApontamentoHoraModel>();
+                    foreach (var item in resultado)
+                    {
+                        apontamentoHoraModelArray.Add(
+                            new ApontamentoHoraModel 
+                            {
+                                cod_func = item.cod_func,
+                                cod_atividade = 29,
+                                desc_atividade = "FÉRIAS/FERIADO",
+                                cliente_tema = "CIPOLATTI",
+                                data = item.data,
+                                semana = item.semana,
+                                observacao = "FERIADO/FÉRIAS - AUTOMÁTICO VIA SISTEMA",
+                                cadastro_por = Environment.UserName,
+                                cadastro_data = DateTime.Now,
+                                hora_trabalhada = item.hora_minima
+                            });
+                    }
+
+                    await dbContext.ApontamentoHoras.BulkInsertAsync(apontamentoHoraModelArray);
+                    await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            });
+        }
+
+
     }
 
+    public static class ContextMenuCommands
+    {
+        static BaseCommand cut;
+        public static BaseCommand Cut
+        {
+            get
+            {
+                cut ??= new BaseCommand(OnCutClicked);
+                return cut;
+            }
+        }
 
+        private async static void OnCutClicked(object obj)
+        {
+            var grid = ((GridRecordContextMenuInfo)obj).DataGrid;
+            var viewModel = grid.DataContext as CadastroFuncionarioProjetosViewModel;
+
+            var iFerias = viewModel.FuncProjeto.incio_ferias;
+            var tFerias = viewModel.FuncProjeto.termino_ferias;
+
+            if (iFerias > tFerias)
+            {
+                MessageBox.Show("DATA INICIAL FÉRIAS MAIOR QUE DATA TÉRMINO FÉRIAS", "Aponta férias");
+                return;
+            }
+            else if (iFerias == null)
+            {
+                MessageBox.Show("DATA INICIAL DE FÉRIAS NÃO ESTA PREENCHIDA!", "Aponta férias");
+                return;
+            }
+            else if (tFerias == null)
+            {
+                MessageBox.Show("DATA TÉRMINO DE FÉRIAS NÃO ESTA PREENCHIDA!", "Aponta férias");
+                return;
+            }
+
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+                await Task.Run(() => viewModel.GravarFeriasFuncionarioProjetosAsync(viewModel.FuncProjeto));
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show("FÉRIAS APONTADA", "Aponta férias");
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+            
+
+            
+        }
+    }
 }

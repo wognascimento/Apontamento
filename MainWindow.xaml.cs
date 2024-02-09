@@ -1,5 +1,6 @@
 ﻿using Apontamento.DataBase;
 using Apontamento.Views.Producao;
+using Apontamento.Views.Producao.Consultas;
 using Apontamento.Views.Projetos;
 using Microsoft.EntityFrameworkCore;
 using Producao;
@@ -237,6 +238,11 @@ namespace Apontamento
             
         }
 
+        private void OnSetoresProducaoClick(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new Setores(), "SETORES", "SetoresProducao");
+        }
+
         private void OnImprimirProducaoClick(object sender, RoutedEventArgs e)
         {
             adicionarFilho(new ImprimirFicha(), "IMPRIMIR FICHA", "ImprimirFicha");
@@ -315,6 +321,42 @@ namespace Apontamento
         private void OnApontamentoCadastroFuncionarioProjetosClick(object sender, RoutedEventArgs e)
         {
             adicionarFilho(new CadastroFuncionarioProjetos(), "CADASTRO FUNCIONÁRIO", "ApontamentoProjetosCadastroFuncionario");
+        }
+
+        private async void OnApontamentosProducaoClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                var data = await db.ApontamentosGeral.ToListAsync();
+
+                using ExcelEngine excelEngine = new ExcelEngine();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs("Impressos/CONSULTA_APONTAMENTOS_GERAL.xlsx");
+                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_APONTAMENTOS_GERAL.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }
