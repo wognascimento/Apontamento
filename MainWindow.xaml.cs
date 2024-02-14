@@ -95,7 +95,7 @@ namespace Apontamento
         /// <param name="e">The <see cref="RoutedEventArgs"/> instance containing the event data.</param>
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            CurrentVisualStyle = "Office365"; // "FluentLight";
+            CurrentVisualStyle = "Metro"; // "FluentLight";
             CurrentSizeMode = "Default";
         }
 

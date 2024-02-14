@@ -41,7 +41,7 @@ namespace Apontamento
 
             DataBaseSettings BaseSettings = DataBaseSettings.Instance;
             BaseSettings.Database = DateTime.Now.Year.ToString();
-            BaseSettings.Host = "192.168.0.23";
+            BaseSettings.Host = "postgresql-server";
             BaseSettings.Username = Environment.UserName;
             BaseSettings.Password = "123mudar";
 
