@@ -47,7 +47,7 @@ namespace Producao
                         ConfigurationManager.RefreshSection("appSettings");
                         */
 
-                        Configuration config = ConfigurationManager.OpenExeConfiguration("Producao.dll");
+                        Configuration config = ConfigurationManager.OpenExeConfiguration("Apontamento.dll");
 
                         //config.AppSettings.SectionInformation.ConfigSource = "app.config";
 
@@ -64,9 +64,10 @@ namespace Producao
                     //    MessageBox.Show("ERRO: Usuário/Senha Inválido!");
                     //}
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Usuário não encontrado!");
+                    //MessageBox.Show("Usuário não encontrado!");
+                    MessageBox.Show(ex.Message);
                 }
             }
         }

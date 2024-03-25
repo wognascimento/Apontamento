@@ -1,8 +1,10 @@
-﻿using Apontamento.DataBase;
+﻿using Apontamento.Custom;
+using Apontamento.DataBase;
 using Apontamento.DataBase.Model;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Syncfusion.UI.Xaml.Grid;
+using Syncfusion.Windows.Controls;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -24,6 +26,7 @@ namespace Apontamento.Views.Producao
         {
             InitializeComponent();
             DataContext = new ApontamentoProducaoSemanaViewModel();
+            this.DGDigitacao.SelectionController = new CustomSelectionController(DGDigitacao);
         }
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -116,7 +119,10 @@ namespace Apontamento.Views.Producao
             try
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
-                vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(((HtModel)e.RowData)));
+                var ht = (HtModel)e.RowData;
+                ht.data = ((HtModel)e.RowData).data.Value.Date;
+                vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(ht));
+                //vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(new HtModel { cod = ht.cod, codfun = ht.codfun, data = ht.data.Value.Date}));
                 vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm.Semana));
                 ((HtModel)e.RowData).cod = vm.Ht.cod;
                 sfdatagrid.View.Refresh();

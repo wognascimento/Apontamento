@@ -164,7 +164,7 @@ namespace Apontamento.Views.Projetos
                 observacao.Text = string.Empty;
                 DescricaoAtividade.Text = string.Empty;
                 totalHora.Value = null;
-                dataApontamento.DateTime = DateTime.Now;
+                //dataApontamento.DateTime = DateTime.Now;
                 centroCustoApontamento.Text = string.Empty;
                 cmbAtividade.Text = string.Empty;
                 cmbIdTarefa.Text = string.Empty;

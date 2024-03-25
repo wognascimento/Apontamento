@@ -221,7 +221,7 @@
                 <syncfusion:GridDateTimeColumn HeaderText="Data" MappingName="data"/>
                 <syncfusion:GridNumericColumn HeaderText="Semana" MappingName="semana" NumberDecimalDigits="0" ColumnSizer="Auto"/>
                 <syncfusion:GridNumericColumn HeaderText="Hora" MappingName="hora_trabalhada" AllowEditing="True"/>
-                <syncfusion:GridTextColumn HeaderText="Observação" MappingName="observacao"/>
+                <syncfusion:GridTextColumn HeaderText="Observação" MappingName="observacao" AllowEditing="True"/>
             </syncfusion:SfDataGrid.Columns>
 
             <syncfusion:SfDataGrid.TableSummaryRows>

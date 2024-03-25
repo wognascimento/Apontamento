@@ -406,7 +406,7 @@ namespace Apontamento.Views.Producao
                     .OrderBy(f => f.sub_setor)
                     .ThenBy(f => f.setor)
                     .ThenBy(f => f.nome_apelido)
-                    .Where(f => f.data_demissao == null && f.ativo == "1")
+                    .Where(f => f.data_demissao == null && f.ativo.Contains("1"))
                     .ToListAsync();
                 return new ObservableCollection<FuncionarioModel>(data);
             }
