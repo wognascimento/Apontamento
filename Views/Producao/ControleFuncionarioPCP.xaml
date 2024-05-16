@@ -53,6 +53,7 @@
                 <syncfusion:GridTextColumn MappingName="cidade" ColumnSizer="SizeToCells"/>
                 <syncfusion:GridTextColumn MappingName="local" ColumnSizer="SizeToCells"/>
                 <syncfusion:GridDateTimeColumn MappingName="data_admissao" ColumnSizer="SizeToCells"/>
+                <syncfusion:GridDateTimeColumn MappingName="data_demissao" ColumnSizer="SizeToCells"/>
             </syncfusion:SfDataGrid.Columns>
 
         </syncfusion:SfDataGrid>

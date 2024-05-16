@@ -75,6 +75,7 @@ namespace Apontamento.Views.Producao
 
                 ((HtModel)e.RowData).cod = vm.Ht.cod;
                 sfdatagrid.View.Refresh();
+                vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm?.Funcionario?.codfun));
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
             catch (Exception ex)

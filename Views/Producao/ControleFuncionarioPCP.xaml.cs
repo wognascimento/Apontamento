@@ -102,7 +102,6 @@ namespace Apontamento.Views.Producao
                 using DatabaseContext db = new();
                 var data = await db.Funcionarios
                     .OrderBy(f => f.nome_apelido)
-                    .Where(f => f.data_demissao == null)
                     .ToListAsync();
                 return new ObservableCollection<FuncionarioModel>(data);
             }
