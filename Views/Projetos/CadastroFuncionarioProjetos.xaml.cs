@@ -1,8 +1,6 @@
 ﻿using Apontamento.DataBase;
 using Apontamento.DataBase.Model;
-using Apontamento.Views.Producao;
 using Microsoft.EntityFrameworkCore;
-using Syncfusion.Data;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.ScrollAxis;
 using Syncfusion.UI.Xaml.Utility;
@@ -14,9 +12,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Telerik.Windows.Controls.Scheduling;
-using Telerik.Windows.Controls.TreeMap;
-using Telerik.Windows.Documents.Spreadsheet.Expressions.Functions;
 
 namespace Apontamento.Views.Projetos
 {

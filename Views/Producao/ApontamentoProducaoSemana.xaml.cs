@@ -4,7 +4,6 @@ using Apontamento.DataBase.Model;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Syncfusion.UI.Xaml.Grid;
-using Syncfusion.Windows.Controls;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -13,7 +12,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Telerik.Windows.Persistence.Core;
 
 namespace Apontamento.Views.Producao
 {
@@ -120,7 +118,7 @@ namespace Apontamento.Views.Producao
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
                 var ht = (HtModel)e.RowData;
-                ht.data = ((HtModel)e.RowData).data.Value.Date;
+                ht.data = ((HtModel)e.RowData).data.Value;
                 vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(ht));
                 //vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(new HtModel { cod = ht.cod, codfun = ht.codfun, data = ht.data.Value.Date}));
                 vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm.Semana));
