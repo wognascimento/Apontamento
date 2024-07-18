@@ -73,7 +73,7 @@ namespace Apontamento.Views.Producao
 
             ((HtModel)e.NewObject).semana = vm.Semana.Semana;
             ((HtModel)e.NewObject).cadastrado_por = Environment.UserName;
-            ((HtModel)e.NewObject).inclusao = DateTime.Now;
+            ((HtModel)e.NewObject).inclusao = DateTime.Now.Date;
         }
 
         private void OnRowValidating(object sender, Syncfusion.UI.Xaml.Grid.RowValidatingEventArgs e)
