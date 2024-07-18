@@ -25,7 +25,11 @@
             ItemsSource="{Binding Funcionarios}" 
             SelectedItem="{Binding Funcionario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             RowValidating="OnRowValidating" 
-            Margin="0,0,6,0" CurrentCellValueChanged="SfDataGrid_CurrentCellValueChanged">
+            Margin="0,0,6,0" 
+            CurrentCellValueChanged="SfDataGrid_CurrentCellValueChanged"
+            SelectionUnit="Row"
+            SelectionMode="Extended"
+            GridCopyOption="CopyData,IncludeHeaders">
 
             <syncfusion:SfDataGrid.Columns>
                 <syncfusion:GridNumericColumn 
