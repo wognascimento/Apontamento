@@ -118,7 +118,7 @@ namespace Apontamento.Views.Producao
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
                 var ht = (HtModel)e.RowData;
-                ht.data = ((HtModel)e.RowData).data.Value;
+                ht.data = ((HtModel)e.RowData).data.Value.Date;
                 vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(ht));
                 //vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(new HtModel { cod = ht.cod, codfun = ht.codfun, data = ht.data.Value.Date}));
                 vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm.Semana));
