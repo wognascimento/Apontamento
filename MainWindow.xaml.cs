@@ -282,17 +282,19 @@ namespace Apontamento
                     .Join(db.FuncionarioProjetos, apontamento => apontamento.codfun, funcionario => funcionario.cod_func, (apontamento, funcionario) => 
                     new
                     {
+                        funcionario.departamento,
                         funcionario.nome_func,
                         apontamento.data,
                         minima = apontamento.hora_minima,
                         trabalhada = apontamento.hora_trabalhada,
                         furo = apontamento.verificacao_novo
                     })
-                    .OrderBy(resultado => resultado.nome_func)
+                    .OrderBy(resultado => resultado.departamento)
+                    .ThenBy(resultado => resultado.nome_func)
                     .ThenBy(resultado => resultado.data)
                     .ToListAsync();
 
-                using ExcelEngine excelEngine = new ExcelEngine();
+                using ExcelEngine excelEngine = new();
                 IApplication application = excelEngine.Excel;
 
                 application.DefaultVersion = ExcelVersion.Xlsx;
@@ -346,6 +348,42 @@ namespace Apontamento
 
                 workbook.SaveAs("Impressos/CONSULTA_APONTAMENTOS_GERAL.xlsx");
                 Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_APONTAMENTOS_GERAL.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void OnApontamentoProjetosGeralClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                var data = await db.ApontamentoGeralProjetos.ToListAsync();
+
+                using ExcelEngine excelEngine = new();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs("Impressos/CONSULTA_APONTAMENTOS_GERAL_PROJETOS.xlsx");
+                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_APONTAMENTOS_GERAL_PROJETOS.xlsx")
                 {
                     UseShellExecute = true
                 });

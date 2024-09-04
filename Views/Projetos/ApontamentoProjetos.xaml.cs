@@ -191,6 +191,7 @@ namespace Apontamento.Views.Projetos
                 var horaApontada = e.RowData as QryApontamentoHoraModel;
                 var apontamento = await Task.Run(() => vm.GetHoraApontadaAsync(horaApontada.cod_linha));
                 apontamento.hora_trabalhada = horaApontada.hora_trabalhada;
+                apontamento.observacao = horaApontada.observacao;
                 await Task.Run(() => vm.SetApontarHoraAsync(apontamento));
                 vm.HorasApontadas = await Task.Run(() => vm.GetHorasApontadasAsync(apontamento.data.Value, horaApontada.cod_func));
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
