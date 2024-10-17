@@ -231,10 +231,15 @@ namespace Apontamento.Views.Projetos
                         new() { codfun = (long)funcionario.cod_func, dia = "TERÇA-FEIRA", hora_minima = (double)funcionario.horas_minimas },
                         new() { codfun = (long)funcionario.cod_func, dia = "QUARTA-FEIRA", hora_minima = (double)funcionario.horas_minimas },
                         new() { codfun = (long)funcionario.cod_func, dia = "QUINTA-FEIRA", hora_minima = (double)funcionario.horas_minimas },
-                        new() { codfun = (long)funcionario.cod_func, dia = "SEXTA-FEIRA", hora_minima = (double)funcionario.horas_minimas },
+                        new() { codfun = (long)funcionario.cod_func, dia = "SEXTA-FEIRA", hora_minima = (double)funcionario.horas_minimas -1 },
                     };
 
-                    await dbContext.DataPlanProjetos.BulkInsertAsync(novoPlanoProjetoArray);
+                    foreach (var item in novoPlanoProjetoArray)
+                    {
+                        await dbContext.DataPlanProjetos.AddAsync(item);
+                    }
+
+                    //await dbContext.DataPlanProjetos.BulkInsertAsync(novoPlanoProjetoArray);
                     await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
