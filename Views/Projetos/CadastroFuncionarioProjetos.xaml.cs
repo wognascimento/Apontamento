@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Telerik.Windows.Controls;
 
 namespace Apontamento.Views.Projetos
 {
@@ -335,7 +336,79 @@ namespace Apontamento.Views.Projetos
                             });
                     }
 
-                    await dbContext.ApontamentoHoras.BulkInsertAsync(apontamentoHoraModelArray);
+                    //await dbContext.ApontamentoHoras.BulkInsertAsync(apontamentoHoraModelArray);
+                    foreach (var item in apontamentoHoraModelArray)
+                        await dbContext.ApontamentoHoras.AddAsync(item);
+
+                    await dbContext.SaveChangesAsync();
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            });
+        }
+
+        public async Task GravarHorasNaoFuncionarioProjetosAsync(FuncionarioProjetosModel funcionario, string observacao)
+        {
+            using var dbContext = new DatabaseContext();
+            var executionStrategy = dbContext.Database.CreateExecutionStrategy();
+            await executionStrategy.ExecuteAsync(async () =>
+            {
+                using var transaction = dbContext.Database.BeginTransaction();
+                try
+                {
+                    var resultado = await dbContext.FuncionarioProjetos
+                        .Join(dbContext.DataPlanProjetos,
+                              funcionario => funcionario.cod_func,
+                              dataplan => dataplan.codfun,
+                              (funcionario, dataplan) => new { Funcionario = funcionario, DataPlan = dataplan })
+                        .Join(dbContext.DataPlanejamentos,
+                              dataPlan => dataPlan.DataPlan.dia,
+                              dataPlanejamento => dataPlanejamento.dia,
+                              (dataPlan, dataPlanejamento) => new
+                              {
+                                  dataPlan.Funcionario.cod_func,
+                                  dataPlanejamento.dia,
+                                  dataPlanejamento.data,
+                                  dataPlan.Funcionario.incio_ferias,
+                                  dataPlan.Funcionario.termino_ferias,
+                                  dataPlan.DataPlan.hora_minima,
+                                  dataPlan.Funcionario.nome_func,
+                                  dataPlanejamento.semana,
+                                  dataPlan.Funcionario.departamento,
+                                  dataPlan.Funcionario.data_demissao
+                              })
+                        .Where(resultado => resultado.data >= funcionario.incio_ferias && resultado.data <= funcionario.termino_ferias && resultado.cod_func == funcionario.cod_func)
+                        .ToListAsync();
+
+                    //var apontamentoHoraModelArray = new ApontamentoHoraModel[]
+
+                    var apontamentoHoraModelArray = new ObservableCollection<ApontamentoHoraModel>();
+                    foreach (var item in resultado)
+                    {
+                        apontamentoHoraModelArray.Add(
+                            new ApontamentoHoraModel
+                            {
+                                cod_func = item.cod_func,
+                                cod_atividade = 28,
+                                desc_atividade = "HORA NÃO TRABALHADA",
+                                cliente_tema = "CIPOLATTI",
+                                data = item.data,
+                                semana = item.semana,
+                                observacao = observacao,
+                                cadastro_por = Environment.UserName,
+                                cadastro_data = DateTime.Now,
+                                hora_trabalhada = item.hora_minima
+                            });
+                    }
+
+                    //await dbContext.ApontamentoHoras.BulkInsertAsync(apontamentoHoraModelArray);
+                    foreach (var item in apontamentoHoraModelArray)
+                        await dbContext.ApontamentoHoras.AddAsync(item);
+
                     await dbContext.SaveChangesAsync();
                     transaction.Commit();
                 }
@@ -398,9 +471,67 @@ namespace Apontamento.Views.Projetos
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
                 MessageBox.Show(ex.Message);
             }
-            
+        }
 
-            
+        static BaseCommand nTrabalhada;
+        public static BaseCommand NTrabalhada
+        {
+            get
+            {
+                nTrabalhada ??= new BaseCommand(OnApontarNTrabalhadaClicked);
+                return nTrabalhada;
+            }
+        }
+
+        private async static void OnApontarNTrabalhadaClicked(object obj)
+        {
+            var grid = ((GridRecordContextMenuInfo)obj).DataGrid;
+            var viewModel = grid.DataContext as CadastroFuncionarioProjetosViewModel;
+
+            var iFerias = viewModel.FuncProjeto.incio_ferias;
+            var tFerias = viewModel.FuncProjeto.termino_ferias;
+
+            if (iFerias > tFerias)
+            {
+                MessageBox.Show("DATA INICIAL MAIOR QUE DATA TÉRMINO", "Apontar");
+                return;
+            }
+            else if (iFerias == null)
+            {
+                MessageBox.Show("DATA INICIAL NÃO ESTA PREENCHIDA!", "Apontar");
+                return;
+            }
+            else if (tFerias == null)
+            {
+                MessageBox.Show("DATA TÉRMINO NÃO ESTA PREENCHIDA!", "Apontar");
+                return;
+            }
+
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+
+                RadWindow.Prompt(
+                    "Informe a Observação",
+                    async (object? sender, WindowClosedEventArgs e) =>
+                    {
+                        if (e.DialogResult == true)
+                        {
+                            await viewModel.GravarHorasNaoFuncionarioProjetosAsync(viewModel.FuncProjeto, e.PromptResult);
+                            MessageBox.Show("HORAS APONTADA", "Apontar");
+                        }
+                    });
+
+                //await Task.Run(() => viewModel.GravarHorasNaoFuncionarioProjetosAsync(viewModel.FuncProjeto));
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }

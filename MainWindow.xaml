@@ -44,16 +44,16 @@
 
 
             <syncfusion:MenuItemAdv Header="Projetos">
+                <syncfusion:MenuItemAdv Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioProjetosClick"/>
                 <syncfusion:MenuItemAdv x:Name="DigitarProjetos" Header="Apontar" Click="OnDigitarApontamentoProjetosClick"/>
-                <syncfusion:MenuItemAdv Header="Pendência Geral" Click="OnApontamentoProjetosFuroClick"/>
                 <syncfusion:MenuItemAdv Header="Consultas">
+                    <syncfusion:MenuItemAdv Header="Pendência" Click="OnApontamentoProjetosFuroClick"/>
                     <syncfusion:MenuItemAdv Header="Geral" Click="OnApontamentoProjetosGeralClick"/>
                     <syncfusion:MenuItemAdv Header="Atividades" Click="OnApontamentoProjetosAtividadesClick"/>
                     <syncfusion:MenuItemAdv Header="Atividades Centro de Custo" Click="OnApontamentoProjetosAtividadesCentroCustoClick"/>
                     <syncfusion:MenuItemAdv Header="Atividades Funcionário" Click="OnApontamentoProjetosAtividadesFuncionarioClick"/>
                     <syncfusion:MenuItemAdv Header="Atividades Cliente" Click="OnApontamentoProjetosAtividadesClienteClick"/>
                 </syncfusion:MenuItemAdv>
-                <syncfusion:MenuItemAdv Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioProjetosClick"/>
             </syncfusion:MenuItemAdv>
 
         </syncfusion:MenuAdv>

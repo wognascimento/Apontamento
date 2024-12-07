@@ -283,6 +283,7 @@ namespace Apontamento
                     new
                     {
                         funcionario.departamento,
+                        apontamento.codfun,
                         funcionario.nome_func,
                         apontamento.data,
                         minima = apontamento.hora_minima,

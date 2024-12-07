@@ -68,9 +68,11 @@
                     
                     <MenuItem Header="Apontar Férias" 
                               Command="{Binding Source={x:Static Member=local:ContextMenuCommands.Cut}}"
-                              CommandParameter="{Binding}" />
+                              CommandParameter="{Binding}"/>
                     
-                    <MenuItem Header="Apontar não trabalhada"  />
+                    <MenuItem Header="Apontar não trabalhada"
+                              Command="{Binding Source={x:Static Member=local:ContextMenuCommands.NTrabalhada}}"
+                              CommandParameter="{Binding}"/>
 
                 </ContextMenu>
             </syncfusion:SfDataGrid.RecordContextMenu>
