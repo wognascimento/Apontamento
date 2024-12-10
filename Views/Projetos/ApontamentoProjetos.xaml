@@ -166,7 +166,7 @@
             HelperTextVisibility="Collapsed"
             Margin="5">
             
-            <TextBox x:Name="DescricaoAtividade" IsEnabled="False"/>
+            <TextBox x:Name="DescricaoAtividade" IsEnabled="False" TextWrapping="Wrap"/>
             
         </syncfusion:SfTextInputLayout>
 
