@@ -7,6 +7,7 @@
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ApplicationIcon>icones\logo.ico</ApplicationIcon>
+	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="icones\configuracao-de-dados-windows-metro-16.png" />
@@ -32,6 +33,10 @@
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="Telerik.UI.for.Wpf.70.Xaml" Version="2023.2.718" />
     <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="9.103.6.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BibliotecasSIG\BibliotecasSIG\BibliotecasSIG.csproj" />
+    <ProjectReference Include="..\Update\Update.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="icones\configuracao-de-dados-windows-metro-16.png" />

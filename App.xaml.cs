@@ -1,35 +1,21 @@
-﻿using System;
-using System.IO;
+﻿using Apontamento.DataBase;
+using BibliotecasSIG;
+using System;
+using System.Diagnostics;
+using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
+using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
-
-using Apontamento.Contracts.Services;
-using Apontamento.Contracts.Views;
-using Apontamento.DataBase;
-using Apontamento.Models;
-using Apontamento.Services;
-using Apontamento.ViewModels;
-using Apontamento.Views;
-
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Apontamento
 {
-    // For more inforation about application lifecyle events see https://docs.microsoft.com/dotnet/framework/wpf/app-development/application-management-overview
 
-    // WPF UI elements use language en-US by default.
-    // If you need to support other cultures make sure you add converters and review dates and numbers in your UI to ensure everything adapts correctly.
-    // Tracking issue for improving this is https://github.com/dotnet/wpf/issues/1946
     public partial class App : Application
     {
-        private IHost _host;
 
-        public T GetService<T>()
-            where T : class
-            => _host.Services.GetService(typeof(T)) as T;
+        private const string UPDATE_URL = "http://192.168.0.49/downloads/apontamento/version.json";
+        private readonly string CURRENT_VERSION = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public App()
         {
@@ -48,57 +34,73 @@ namespace Apontamento
 
         }
 
-        private async void OnStartup(object sender, StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
-            var appLocation = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            base.OnStartup(e);
+            await CheckForUpdatesAsync();
+        }
 
-            // For more information about .NET generic host see  https://docs.microsoft.com/aspnet/core/fundamentals/host/generic-host?view=aspnetcore-3.0
-            _host = Host.CreateDefaultBuilder(e.Args)
-                    .ConfigureAppConfiguration(c =>
+        private async Task CheckForUpdatesAsync()
+        {
+            try
+            {
+                var updateChecker = new UpdateChecker(UPDATE_URL, CURRENT_VERSION);
+                var updateInfo = await updateChecker.CheckForUpdatesAsync();
+
+                var updateInfoJson = JsonSerializer.Serialize<UpdateInfo>(updateInfo);
+
+                if (updateInfo != null)
+                {
+                    // Pergunta ao usuário se deseja atualizar
+                    var result = MessageBox.Show(
+                        $"Nova versão disponível!\n\n" +
+                        $"Versão atual: {CURRENT_VERSION}\n" +
+                        $"Nova versão: {updateInfo.updateVersion}\n\n" +
+                        "Changelog:\n" +
+                        string.Join("\n", updateInfo.changelog) +
+                        "\n\nDeseja baixar a atualização?",
+                        "Atualização Disponível",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Information
+                    );
+
+                    if (result == MessageBoxResult.Yes)
                     {
-                        c.SetBasePath(appLocation);
-                    })
-                    .ConfigureServices(ConfigureServices)
-                    .Build();
 
-            await _host.StartAsync();
-        }
+                        var options = new JsonSerializerOptions { WriteIndented = true };
+                        string jsonString = JsonSerializer.Serialize(updateInfo, options);
 
-        private void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-        {
-            // TODO WTS: Register your services, viewmodels and pages here
+                        //Process.Start("Update.exe", @$"{updateInfoJson}, Apontamento.exe");
 
-            // App Host
-            services.AddHostedService<ApplicationHostService>();
+                        string jsonData = JsonSerializer.Serialize(updateInfo); // Garante que o JSON está bem formatado
+                        string appName = "Apontamento.exe";
 
-            // Core Services
+                        string arguments = $"\"{jsonData.Replace("\"", "\\\"")}\" \"{appName}\"";
+                        Process.Start("Update.exe", arguments);
+                        this.Shutdown();
 
-            // Services
-            services.AddSingleton<IPageService, PageService>();
-            services.AddSingleton<INavigationService, NavigationService>();
-
-            // Views and ViewModels
-            services.AddTransient<IShellWindow, ShellWindow>();
-            services.AddTransient<ShellViewModel>();
-
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<MainPage>();
-
-            // Configuration
-            services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));
-        }
-
-        private async void OnExit(object sender, ExitEventArgs e)
-        {
-            await _host.StopAsync();
-            _host.Dispose();
-            _host = null;
-        }
-
-        private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
-        {
-            // TODO WTS: Please log and handle the exception as appropriate to your scenario
-            // For more info see https://docs.microsoft.com/dotnet/api/system.windows.application.dispatcherunhandledexception?view=netcore-3.0
+                    }
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                // Log do erro ou tratamento de exceção
+                MessageBox.Show(
+                    $"Erro ao verificar atualizações: {ex.Message}",
+                    "Erro",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Erro ao verificar atualizações: {ex.Message}",
+                    "Erro",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error
+                );
+            }
         }
     }
 }
