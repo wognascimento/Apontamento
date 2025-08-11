@@ -2,12 +2,13 @@
 using Apontamento.Views.Producao;
 using Apontamento.Views.Producao.Consultas;
 using Apontamento.Views.Projetos;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Producao;
 using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Tools.Controls;
 using Syncfusion.XlsIO;
-using Syncfusion.XlsIO.Implementation.Security;
 using System;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -217,8 +218,8 @@ namespace Apontamento
                 //worksheet.IsGridLinesVisible = false;
                 worksheet.ImportData(data, 1, 1, true);
 
-                workbook.SaveAs("Impressos/CONSULTA_FURO.xlsx");
-                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_FURO.xlsx")
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_FURO.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_FURO.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -306,8 +307,8 @@ namespace Apontamento
                 //worksheet.IsGridLinesVisible = false;
                 worksheet.ImportData(data, 1, 1, true);
 
-                workbook.SaveAs("Impressos/CONSULTA_FURO_PROJETOS.xlsx");
-                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_FURO_PROJETOS.xlsx")
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_FURO_PROJETOS.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_FURO_PROJETOS.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -347,8 +348,8 @@ namespace Apontamento
                 //worksheet.IsGridLinesVisible = false;
                 worksheet.ImportData(data, 1, 1, true);
 
-                workbook.SaveAs("Impressos/CONSULTA_APONTAMENTOS_GERAL.xlsx");
-                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_APONTAMENTOS_GERAL.xlsx")
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_GERAL.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_GERAL.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -383,8 +384,8 @@ namespace Apontamento
                 //worksheet.IsGridLinesVisible = false;
                 worksheet.ImportData(data, 1, 1, true);
 
-                workbook.SaveAs("Impressos/CONSULTA_APONTAMENTOS_GERAL_PROJETOS.xlsx");
-                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_APONTAMENTOS_GERAL_PROJETOS.xlsx")
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_GERAL_PROJETOS.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_GERAL_PROJETOS.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -440,8 +441,8 @@ namespace Apontamento
                 //worksheet.IsGridLinesVisible = false;
                 worksheet.ImportData(data, 1, 1, true);
 
-                workbook.SaveAs("Impressos/CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS.xlsx");
-                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS.xlsx")
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -495,8 +496,8 @@ namespace Apontamento
                 //worksheet.IsGridLinesVisible = false;
                 worksheet.ImportData(data, 1, 1, true);
 
-                workbook.SaveAs("Impressos/CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS_CENTRO_CUSTO.xlsx");
-                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS_CENTRO_CUSTO.xlsx")
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS_CENTRO_CUSTO.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS_CENTRO_CUSTO.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -555,8 +556,8 @@ namespace Apontamento
                 //worksheet.IsGridLinesVisible = false;
                 worksheet.ImportData(data, 1, 1, true);
 
-                workbook.SaveAs("Impressos/CONSULTA_APONTAMENTOS_ATIVIDADES_FUNCIONARIO.xlsx");
-                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_APONTAMENTOS_ATIVIDADES_FUNCIONARIO.xlsx")
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_FUNCIONARIO.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_FUNCIONARIO.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -615,8 +616,62 @@ namespace Apontamento
                 //worksheet.IsGridLinesVisible = false;
                 worksheet.ImportData(data, 1, 1, true);
 
-                workbook.SaveAs("Impressos/CONSULTA_APONTAMENTOS_ATIVIDADES_CLENTE.xlsx");
-                Process.Start(new ProcessStartInfo("Impressos\\CONSULTA_APONTAMENTOS_ATIVIDADES_CLENTE.xlsx")
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_CLENTE.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_CLENTE.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void OnFuncionariosPresentes(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+                string sql = @"
+                    SELECT
+                        nome_apelido,
+                        setor,
+                        semana,
+                        presente,
+                        local_galpao
+                    FROM ht.qry_base_funcionario_x_semana_grupo
+                    ORDER BY setor, nome_apelido;";
+
+                using var connection = new NpgsqlConnection(BaseSettings.ConnectionString);
+                await connection.OpenAsync();
+
+                var dataTable = new System.Data.DataTable();
+                using (var command = new NpgsqlCommand(sql, connection))
+                using (var dataAdapter = new NpgsqlDataAdapter(command))
+                {
+                    dataAdapter.Fill(dataTable);
+                }
+
+                await connection.CloseAsync();
+
+                using ExcelEngine excelEngine = new();
+                IApplication application = excelEngine.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2016;
+
+                // Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+
+                // Import the DataTable
+                worksheet.ImportDataTable(dataTable, true, 1, 1);
+
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}Impressos\FUNCIONÁRIOS-PRESENTES.xlsx");
+
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}Impressos\FUNCIONÁRIOS-PRESENTES.xlsx")
                 {
                     UseShellExecute = true
                 });

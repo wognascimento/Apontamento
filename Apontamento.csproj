@@ -7,32 +7,32 @@
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ApplicationIcon>icones\logo.ico</ApplicationIcon>
-	  <AssemblyVersion>1.0.0.0</AssemblyVersion>
+	  <AssemblyVersion>1.0.0.1</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="icones\configuracao-de-dados-windows-metro-16.png" />
     <None Remove="icones\icons8-usu_0025c3_0025a1rio-de-g_0025c3_0025aanero-neutro-windows-metro-16.png" />
     <None Remove="icones\logo.ico" />
     <None Remove="icones\logo.png" />
-    <None Remove="ModelosImpressoes\MODELO-FICHA-APONTAMENTO.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="icones\logo.ico" />
-    <Content Include="ModelosImpressoes\MODELO-FICHA-APONTAMENTO.xlsx">
+    <Content Include="Modelos\MODELO-FICHA-APONTAMENTO.xlsx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.1" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
     <PackageReference Include="syncfusion.ui.wpf.net" Version="27.1.53" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.8" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     <PackageReference Include="Telerik.UI.for.Wpf.70.Xaml" Version="2023.2.718" />
-    <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="9.103.6.3" />
+    <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="9.103.9.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BibliotecasSIG\BibliotecasSIG\BibliotecasSIG.csproj" />
@@ -62,4 +62,14 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Impressos\" />
+  </ItemGroup>
+	
+	
+	<Target Name="IncludeEmptyFolders" AfterTargets="Publish">
+		<MakeDir Directories="$(PublishDir)Impressos" />
+	</Target>
+
+
 </Project>

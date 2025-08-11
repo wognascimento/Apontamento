@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Telerik.Windows.Documents.Spreadsheet.Model;
 
 namespace Apontamento.Views.Producao
 {
@@ -22,6 +21,9 @@ namespace Apontamento.Views.Producao
     /// </summary>
     public partial class ImprimirFicha : UserControl
     {
+
+        DataBaseSettings BaseSettings = DataBaseSettings.Instance;
+
         public ImprimirFicha()
         {
             InitializeComponent();
@@ -70,7 +72,7 @@ namespace Apontamento.Views.Producao
                 using ExcelEngine excelEngine = new();
                 IApplication application = excelEngine.Excel;
                 application.DefaultVersion = ExcelVersion.Xlsx;
-                IWorkbook workbook = application.Workbooks.Open("ModelosImpressoes/MODELO-FICHA-APONTAMENTO.xlsx");
+                IWorkbook workbook = application.Workbooks.Open(@$"{BaseSettings.CaminhoSistema}\Modelos\MODELO-FICHA-APONTAMENTO.xlsx");
                 IWorksheet worksheet = workbook.Worksheets[0];
 
                 int TotFunc = filteredResult.Count;
@@ -174,7 +176,7 @@ namespace Apontamento.Views.Producao
                                 worksheet.Range["FUNC1_DATA8"].CellStyle.Font.Color = ExcelKnownColors.Black;
 
                                 Thread.Sleep(3000);
-                                workbook.SaveAs(@"Impressos\FICHA-APONTAMENTO.xlsx");
+                                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\FICHA-APONTAMENTO.xlsx");
                                 ficha = "DIREITA";
 
                                 break;
@@ -269,13 +271,13 @@ namespace Apontamento.Views.Producao
                                 worksheet.Range["FUNC2_DATA8"].CellStyle.Font.Color = ExcelKnownColors.Black;
 
 
-                                workbook.SaveAs(@"Impressos\FICHA-APONTAMENTO.xlsx");
+                                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\FICHA-APONTAMENTO.xlsx");
 
                                 print++;
                                 ficha = "ESQUERDA";
 
                                 Process.Start(
-                                    new ProcessStartInfo(@"Impressos\FICHA-APONTAMENTO.xlsx")
+                                    new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\FICHA-APONTAMENTO.xlsx")
                                     {
                                         Verb = "Print",
                                         UseShellExecute = true,
@@ -339,7 +341,7 @@ namespace Apontamento.Views.Producao
                     if (TotFunc == 1 && ficha == "DIREITA")
                     {
                         Process.Start(
-                            new ProcessStartInfo(@"Impressos\FICHA-APONTAMENTO.xlsx")
+                            new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\FICHA-APONTAMENTO.xlsx")
                             {
                                 Verb = "Print",
                                 UseShellExecute = true,
