@@ -267,8 +267,14 @@ namespace Apontamento.Views.Producao
             try
             {
                 using DatabaseContext db = new();
-                await db.Hts.SingleMergeAsync(ht);
+                //await db.Hts.SingleMergeAsync(ht);
+                var htExistente = await db.Hts.FindAsync(ht.cod);
+                if (htExistente == null)
+                    await db.Hts.AddAsync(ht);
+                else
+                    db.Entry(htExistente).CurrentValues.SetValues(ht);
                 await db.SaveChangesAsync();
+
                 return ht;
             }
             catch (NpgsqlException)

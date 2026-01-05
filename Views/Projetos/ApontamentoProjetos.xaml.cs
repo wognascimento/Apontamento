@@ -421,8 +421,13 @@ namespace Apontamento.Views.Projetos
             try
             {
                 using DatabaseContext db = new();
-                await db.ApontamentoHoras.SingleMergeAsync(apontamento);
-                //await db.ApontamentoHoras.BulkMergeAsync(apontamento);
+                //await db.ApontamentoHoras.SingleMergeAsync(apontamento);
+                var apontamentoExistente = await db.ApontamentoHoras.FindAsync(apontamento.cod_linha);
+                if (apontamentoExistente == null)
+                    await db.ApontamentoHoras.AddAsync(apontamento);
+                else
+                    db.Entry(apontamentoExistente).CurrentValues.SetValues(apontamento);
+
                 await db.SaveChangesAsync();
             }
             catch (Exception)

@@ -2,7 +2,6 @@
 using Apontamento.Views.Producao;
 using Apontamento.Views.Producao.Consultas;
 using Apontamento.Views.Projetos;
-using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Producao;
