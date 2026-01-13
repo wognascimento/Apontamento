@@ -155,6 +155,7 @@ namespace Apontamento
                     {
                         BaseSettings.Database = e.PromptResult;
                         txtDataBase.Text = BaseSettings.Database;
+                        BaseSettings.ConnectionString = $"Host={BaseSettings.Host};Database={BaseSettings.Database};Username={BaseSettings.Username};Password={BaseSettings.Password}";
                         _mdi.Items.Clear();
                     }
                 }
