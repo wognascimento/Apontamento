@@ -56,6 +56,22 @@
                     <syncfusion:MenuItemAdv Header="Atividades Cliente" Click="OnApontamentoProjetosAtividadesClienteClick"/>
                 </syncfusion:MenuItemAdv>
             </syncfusion:MenuItemAdv>
+            
+
+            <syncfusion:MenuItemAdv Header="Artes">
+                <syncfusion:MenuItemAdv Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioArtesClick"/>
+                <syncfusion:MenuItemAdv x:Name="DigitarArtes" Header="Apontar" Click="OnDigitarApontamentoArtesClick"/>
+                <syncfusion:MenuItemAdv Header="Consultas">
+                    <syncfusion:MenuItemAdv Header="Pendência" Click="OnApontamentoArtesFuroClick"/>
+                    <syncfusion:MenuItemAdv Header="Geral" Click="OnApontamentoArtesGeralClick"/>
+                    <syncfusion:MenuItemAdv Header="Atividades" Click="OnApontamentoArtesAtividadesClick"/>
+                    <syncfusion:MenuItemAdv Header="Atividades Centro de Custo" Click="OnApontamentoArtesAtividadesCentroCustoClick"/>
+                    <syncfusion:MenuItemAdv Header="Atividades Funcionário" Click="OnApontamentoArtesAtividadesFuncionarioClick"/>
+                    <syncfusion:MenuItemAdv Header="Atividades Cliente" Click="OnApontamentoArtesAtividadesClienteClick"/>
+                </syncfusion:MenuItemAdv>
+            </syncfusion:MenuItemAdv>
+            
+            
 
         </syncfusion:MenuAdv>
 

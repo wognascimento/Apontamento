@@ -192,7 +192,12 @@ namespace Apontamento
 
         private void OnDigitarApontamentoProjetosClick(object sender, RoutedEventArgs e)
         {
-            adicionarFilho(new ApontamentoProjetos(), "APONTAMENTO PROJETOS", "ApontamentoProjetos");
+            adicionarFilho(new ApontamentoProjetos("PROJETOS"), "APONTAMENTO PROJETOS", "ApontamentoProjetos");
+        }
+
+        private void OnDigitarApontamentoArtesClick(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new ApontamentoProjetos("ARTES"), "APONTAMENTO ARTES", "ApontamentoArtes");
         }
 
         private async void OnFuroProducaoClick(object sender, RoutedEventArgs e)
@@ -271,13 +276,6 @@ namespace Apontamento
 
                 using DatabaseContext db = new();
 
-                //var data = await db.QryFuroApontamentoProjetos.ToListAsync();
-                /*var data = await db.QryFuroApontamentoProjetos
-                    .OrderBy(c => c.data)
-                    .Where(c => c.codfun == cod_func)
-                    .ToArrayAsync();
-                */
-
                 var data = await db.QryFuroApontamentoProjetos
                     .Join(db.FuncionarioProjetos, apontamento => apontamento.codfun, funcionario => funcionario.cod_func, (apontamento, funcionario) => 
                     new
@@ -290,6 +288,7 @@ namespace Apontamento
                         trabalhada = apontamento.hora_trabalhada,
                         furo = apontamento.verificacao_novo
                     })
+                    .Where(resultado => resultado.departamento == "PROJETOS")
                     .OrderBy(resultado => resultado.departamento)
                     .ThenBy(resultado => resultado.nome_func)
                     .ThenBy(resultado => resultado.data)
@@ -321,9 +320,66 @@ namespace Apontamento
             }
         }
 
+        private async void OnApontamentoArtesFuroClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                var data = await db.QryFuroApontamentoProjetos
+                    .Join(db.FuncionarioProjetos, apontamento => apontamento.codfun, funcionario => funcionario.cod_func, (apontamento, funcionario) =>
+                    new
+                    {
+                        funcionario.departamento,
+                        apontamento.codfun,
+                        funcionario.nome_func,
+                        apontamento.data,
+                        minima = apontamento.hora_minima,
+                        trabalhada = apontamento.hora_trabalhada,
+                        furo = apontamento.verificacao_novo
+                    })
+                    .Where(resultado => resultado.departamento == "ARTES")
+                    .OrderBy(resultado => resultado.departamento)
+                    .ThenBy(resultado => resultado.nome_func)
+                    .ThenBy(resultado => resultado.data)
+                    .ToListAsync();
+
+                using ExcelEngine excelEngine = new();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_FURO_ARTES.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_FURO_ARTES.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+
         private void OnApontamentoCadastroFuncionarioProjetosClick(object sender, RoutedEventArgs e)
         {
-            adicionarFilho(new CadastroFuncionarioProjetos(), "CADASTRO FUNCIONÁRIO", "ApontamentoProjetosCadastroFuncionario");
+            adicionarFilho(new CadastroFuncionarioProjetos("PROJETOS"), "CADASTRO FUNCIONÁRIO PROJETOS", "ApontamentoProjetosCadastroFuncionario");
+        }
+
+        private void OnApontamentoCadastroFuncionarioArtesClick(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new CadastroFuncionarioProjetos("ARTES"), "CADASTRO FUNCIONÁRIO ARTES", "ApontamentoArtesCadastroFuncionario");
         }
 
         private async void OnApontamentosProducaoClick(object sender, RoutedEventArgs e)
@@ -370,7 +426,7 @@ namespace Apontamento
 
                 using DatabaseContext db = new();
 
-                var data = await db.ApontamentoGeralProjetos.ToListAsync();
+                var data = await db.ApontamentoGeralProjetos.Where(r => r.departamento == "PROJETOS").ToListAsync();
 
                 using ExcelEngine excelEngine = new();
                 IApplication application = excelEngine.Excel;
@@ -385,6 +441,42 @@ namespace Apontamento
 
                 workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_GERAL_PROJETOS.xlsx");
                 Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_GERAL_PROJETOS.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void OnApontamentoArtesGeralClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                var data = await db.ApontamentoGeralProjetos.Where(r => r.departamento == "ARTES").ToListAsync();
+
+                using ExcelEngine excelEngine = new();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_GERAL_ARTES.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_GERAL_ARTES.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -423,6 +515,7 @@ namespace Apontamento
                         DescAtividade = g.Key.desc_atividade,
                         HoraTrabalhada = g.Sum(ap => ap.hora_trabalhada)
                     })
+                    .Where(r => r.Departamento == "PROJETOS")
                     .OrderBy(r => r.Departamento)
                     .ThenBy(r => r.Identificacao)
                     .ThenBy(r => r.CentroCusto)
@@ -442,6 +535,64 @@ namespace Apontamento
 
                 workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS.xlsx");
                 Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void OnApontamentoArtesAtividadesClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                //var data = await db.ApontamentoGeralProjetos.ToListAsync();
+                var data = await db.ApontamentoGeralProjetos
+                    .GroupBy(ap => new
+                    {
+                        ap.departamento,
+                        ap.identificacao,
+                        ap.centro_custo,
+                        ap.desc_atividade
+                    })
+                    .Select(g => new
+                    {
+                        Departamento = g.Key.departamento,
+                        Identificacao = g.Key.identificacao,
+                        CentroCusto = g.Key.centro_custo,
+                        DescAtividade = g.Key.desc_atividade,
+                        HoraTrabalhada = g.Sum(ap => ap.hora_trabalhada)
+                    })
+                    .Where(r => r.Departamento == "ARTES")
+                    .OrderBy(r => r.Departamento)
+                    .ThenBy(r => r.Identificacao)
+                    .ThenBy(r => r.CentroCusto)
+                    .ToListAsync();
+
+
+                using ExcelEngine excelEngine = new();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_ARTES.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_ARTES.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -478,6 +629,7 @@ namespace Apontamento
                         CentroCusto = g.Key.centro_custo,
                         HoraTrabalhada = g.Sum(ap => ap.hora_trabalhada)
                     })
+                    .Where(r => r.Departamento == "PROJETOS")
                     .OrderBy(r => r.Departamento)
                     .ThenBy(r => r.Identificacao)
                     .ThenBy(r => r.CentroCusto)
@@ -497,6 +649,62 @@ namespace Apontamento
 
                 workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS_CENTRO_CUSTO.xlsx");
                 Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_PROJETOS_CENTRO_CUSTO.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void OnApontamentoArtesAtividadesCentroCustoClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                //var data = await db.ApontamentoGeralProjetos.ToListAsync();
+                var data = await db.ApontamentoGeralProjetos
+                    .GroupBy(ap => new
+                    {
+                        ap.departamento,
+                        ap.identificacao,
+                        ap.centro_custo
+                    })
+                    .Select(g => new
+                    {
+                        Departamento = g.Key.departamento,
+                        Identificacao = g.Key.identificacao,
+                        CentroCusto = g.Key.centro_custo,
+                        HoraTrabalhada = g.Sum(ap => ap.hora_trabalhada)
+                    })
+                    .Where(r => r.Departamento == "ARTES")
+                    .OrderBy(r => r.Departamento)
+                    .ThenBy(r => r.Identificacao)
+                    .ThenBy(r => r.CentroCusto)
+                    .ToListAsync();
+
+
+                using ExcelEngine excelEngine = new();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_ARTES_CENTRO_CUSTO.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_ARTES_CENTRO_CUSTO.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -537,6 +745,7 @@ namespace Apontamento
                         CentroCusto = g.Key.centro_custo,
                         HoraTrabalhada = g.Sum(ap => ap.hora_trabalhada)
                     })
+                    .Where(r => r.Departamento == "PROJETOS")
                     .OrderBy(r => r.Departamento)
                     .OrderBy(r => r.Funcionario)
                     .ThenBy(r => r.Identificacao)
@@ -557,6 +766,67 @@ namespace Apontamento
 
                 workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_FUNCIONARIO.xlsx");
                 Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_FUNCIONARIO.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void OnApontamentoArtesAtividadesFuncionarioClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                //var data = await db.ApontamentoGeralProjetos.ToListAsync();
+                var data = await db.ApontamentoGeralProjetos
+                    .GroupBy(ap => new
+                    {
+                        ap.departamento,
+                        ap.nome_func,
+                        ap.identificacao,
+                        ap.centro_custo,
+                        ap.desc_atividade
+                    })
+                    .Select(g => new
+                    {
+                        Departamento = g.Key.departamento,
+                        Funcionario = g.Key.nome_func,
+                        DescAtividade = g.Key.desc_atividade,
+                        Identificacao = g.Key.identificacao,
+                        CentroCusto = g.Key.centro_custo,
+                        HoraTrabalhada = g.Sum(ap => ap.hora_trabalhada)
+                    })
+                    .Where(r => r.Departamento == "ARTES")
+                    .OrderBy(r => r.Departamento)
+                    .OrderBy(r => r.Funcionario)
+                    .ThenBy(r => r.Identificacao)
+                    .ThenBy(r => r.CentroCusto)
+                    .ToListAsync();
+
+
+                using ExcelEngine excelEngine = new();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_FUNCIONARIO_ARTES.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_FUNCIONARIO_ARTES.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -597,6 +867,7 @@ namespace Apontamento
                         CentroCusto = g.Key.centro_custo,
                         HoraTrabalhada = g.Sum(ap => ap.hora_trabalhada)
                     })
+                    .Where(r => r.Departamento == "PROJETOS")
                     .OrderBy(r => r.Departamento)
                     .OrderBy(r => r.cliente_tema)
                     .ThenBy(r => r.Identificacao)
@@ -617,6 +888,67 @@ namespace Apontamento
 
                 workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_CLENTE.xlsx");
                 Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_CLENTE.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private async void OnApontamentoArtesAtividadesClienteClick(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using DatabaseContext db = new();
+
+                //var data = await db.ApontamentoGeralProjetos.ToListAsync();
+                var data = await db.ApontamentoGeralProjetos
+                    .GroupBy(ap => new
+                    {
+                        ap.departamento,
+                        ap.cliente_tema,
+                        ap.identificacao,
+                        ap.centro_custo,
+                        ap.desc_atividade
+                    })
+                    .Select(g => new
+                    {
+                        Departamento = g.Key.departamento,
+                        cliente_tema = g.Key.cliente_tema,
+                        DescAtividade = g.Key.desc_atividade,
+                        Identificacao = g.Key.identificacao,
+                        CentroCusto = g.Key.centro_custo,
+                        HoraTrabalhada = g.Sum(ap => ap.hora_trabalhada)
+                    })
+                    .Where(r => r.Departamento == "ARTES")
+                    .OrderBy(r => r.Departamento)
+                    .OrderBy(r => r.cliente_tema)
+                    .ThenBy(r => r.Identificacao)
+                    .ThenBy(r => r.CentroCusto)
+                    .ToListAsync();
+
+
+                using ExcelEngine excelEngine = new();
+                IApplication application = excelEngine.Excel;
+
+                application.DefaultVersion = ExcelVersion.Xlsx;
+
+                //Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+                //worksheet.IsGridLinesVisible = false;
+                worksheet.ImportData(data, 1, 1, true);
+
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_CLENTE_ARTES.xlsx");
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\CONSULTA_APONTAMENTOS_ATIVIDADES_CLENTE_ARTES.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -683,5 +1015,6 @@ namespace Apontamento
                 MessageBox.Show(ex.Message);
             }
         }
+
     }
 }

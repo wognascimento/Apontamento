@@ -19,10 +19,13 @@ namespace Apontamento.Views.Projetos
     /// </summary>
     public partial class ApontamentoProjetos : UserControl
     {
-        public ApontamentoProjetos()
+        private readonly string _departamento;
+
+        public ApontamentoProjetos(string departamento)
         {
             DataContext = new ApontamentoProjetosViewModel();
             InitializeComponent();
+            _departamento = departamento;
         }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -31,10 +34,10 @@ namespace Apontamento.Views.Projetos
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
                 ApontamentoProjetosViewModel vm = (ApontamentoProjetosViewModel)DataContext;
-                vm.FuncProjeto = await Task.Run(vm.GetFuncionarioAsync);
+                vm.FuncProjeto = await vm.GetFuncionarioAsync(_departamento);
                 if (vm.FuncProjeto == null) 
                 {
-                    MessageBox.Show("Funcionário não pertence ao departamento de projetos.");
+                    MessageBox.Show($@"Funcionário não pertence ao departamento de {_departamento}.");
                     //var tela = ((MainWindow)Application.Current.MainWindow)._mdi.Items.
                     ((MainWindow)Application.Current.MainWindow)._mdi.Items.Remove(this);
                     Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
@@ -42,7 +45,7 @@ namespace Apontamento.Views.Projetos
                 }
                 nomeFuncionario.Text = vm.FuncProjeto.nome_func;
                 funcaoFuncionario.Text = vm.FuncProjeto.funcao_func;
-                vm.CentroCustos = await Task.Run(vm.GetCentroCustoAsync);
+                vm.CentroCustos = await vm.GetCentroCustoAsync(_departamento);
                 vm.HorasApontadas = await Task.Run(() => vm.GetHorasApontadasAsync(DateTime.Now.Date, vm.FuncProjeto.cod_func));
                 vm.FuroProjetos = await Task.Run(() => vm.GetFuroProjetosAsync(vm.FuncProjeto.cod_func));
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
@@ -63,7 +66,7 @@ namespace Apontamento.Views.Projetos
                 string centroCusto = cmbIdTarefa.Text;
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
                 ApontamentoProjetosViewModel vm = (ApontamentoProjetosViewModel)DataContext;
-                vm.Atividades = await Task.Run( () => vm.GetAtividadesAsync(centroCusto) );
+                vm.Atividades = await vm.GetAtividadesAsync(centroCusto, _departamento);
                 cmbAtividade.Text = string.Empty;
                 centroCustoApontamento.Text = string.Empty;
                 DescricaoAtividade.Text = string.Empty;
@@ -314,14 +317,14 @@ namespace Apontamento.Views.Projetos
 
 
 
-        public async Task<ObservableCollection<object>> GetCentroCustoAsync()
+        public async Task<ObservableCollection<object>> GetCentroCustoAsync(string departamento)
         {
             try
             {
                 using DatabaseContext db = new();
                 var data = await db.TarefaProjetos
                     .OrderBy(c => c.identificacao)
-                    .Where(c => c.inativo == "0")
+                    .Where(c => c.inativo == "0" && c.departamento == departamento)
                     .Select(s => new
                     {
                         s.identificacao
@@ -334,14 +337,14 @@ namespace Apontamento.Views.Projetos
             }
         }
 
-        public async Task<ObservableCollection<TarefaProjetosModel>> GetAtividadesAsync(string centroCusto)
+        public async Task<ObservableCollection<TarefaProjetosModel>> GetAtividadesAsync(string centroCusto, string departamento)
         {
             try
             {
                 using DatabaseContext db = new();
                 var data = await db.TarefaProjetos
                     .OrderBy(c => c.atividade)
-                    .Where(c => c.inativo == "0" && c.identificacao == centroCusto)
+                    .Where(c => c.inativo == "0" && c.identificacao == centroCusto && c.departamento == departamento)
                     .ToArrayAsync();
                 return new ObservableCollection<TarefaProjetosModel>(data);
             }
@@ -383,7 +386,7 @@ namespace Apontamento.Views.Projetos
             }
         }
 
-        public async Task<FuncionarioProjetosModel> GetFuncionarioAsync()
+        public async Task<FuncionarioProjetosModel> GetFuncionarioAsync(string departamento)
         {
             try
             {
@@ -391,7 +394,7 @@ namespace Apontamento.Views.Projetos
                 using DatabaseContext db = new();
                 var data = await db.FuncionarioProjetos
                     .OrderBy(c => c.nome_func)
-                    .Where(c => c.nick_name_func == BaseSettings.Username)
+                    .Where(c => c.nick_name_func == BaseSettings.Username && c.departamento == departamento)
                     .FirstOrDefaultAsync();
                 return data;
             }

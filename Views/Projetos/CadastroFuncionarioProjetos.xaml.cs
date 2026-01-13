@@ -21,10 +21,14 @@ namespace Apontamento.Views.Projetos
     /// </summary>
     public partial class CadastroFuncionarioProjetos : UserControl
     {
-        public CadastroFuncionarioProjetos()
+        private readonly string _departamento;
+
+        public CadastroFuncionarioProjetos(string departamento)
         {
             InitializeComponent();
             DataContext = new CadastroFuncionarioProjetosViewModel();
+            _departamento = departamento;
+
         }
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
@@ -33,8 +37,8 @@ namespace Apontamento.Views.Projetos
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
                 CadastroFuncionarioProjetosViewModel vm = (CadastroFuncionarioProjetosViewModel)DataContext;
-                vm.FuncProjetos = await Task.Run(vm.GetFuncionariosProjetoAsync);
-                vm.Funcs = await Task.Run(vm.GetFuncionariosAsync);
+                vm.FuncProjetos = await vm.GetFuncionariosProjetoAsync(_departamento);
+                vm.Funcs = await vm.GetFuncionariosAsync(_departamento);
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
 
                // (new System.Collections.Generic.CollectionDebugView<Apontamento.DataBase.Model.FuncionarioProjetosModel>(vm.FuncProjetos).Items[0]).PlanosProjetos
@@ -77,11 +81,11 @@ namespace Apontamento.Views.Projetos
                 CadastroFuncionarioProjetosViewModel vm = (CadastroFuncionarioProjetosViewModel)DataContext;
                 var sfdatagrid = sender as SfDataGrid;
                 if (sfdatagrid.SelectedIndex == -1)
-                    await Task.Run( () => vm.GravarFuncionarioProjetosAsync((FuncionarioProjetosModel)e.RowData));
+                    await vm.GravarFuncionarioProjetosAsync((FuncionarioProjetosModel)e.RowData);
                 else
-                    await Task.Run(() => vm.AlterarFuncionarioProjetosAsync((FuncionarioProjetosModel)e.RowData));
+                    await vm.AlterarFuncionarioProjetosAsync((FuncionarioProjetosModel)e.RowData);
 
-                vm.FuncProjetos = await Task.Run(vm.GetFuncionariosProjetoAsync);
+                vm.FuncProjetos = await vm.GetFuncionariosProjetoAsync(_departamento);
             }
             catch (Exception ex)
             {
@@ -115,7 +119,7 @@ namespace Apontamento.Views.Projetos
         {
             CadastroFuncionarioProjetosViewModel vm = (CadastroFuncionarioProjetosViewModel)DataContext;
 
-            ((FuncionarioProjetosModel)e.NewObject).departamento = "PROJETOS";
+            ((FuncionarioProjetosModel)e.NewObject).departamento = _departamento;
             //((FuncionarioProjetosModel)e.NewObject).cadastrado_por = Environment.UserName;
             //((FuncionarioProjetosModel)e.NewObject).inclusao = DateTime.Now;
         }
@@ -179,7 +183,7 @@ namespace Apontamento.Views.Projetos
             set { _funcs = value; RaisePropertyChanged("Funcs"); }
         }
 
-        public async Task<ObservableCollection<FuncionarioProjetosModel>> GetFuncionariosProjetoAsync()
+        public async Task<ObservableCollection<FuncionarioProjetosModel>> GetFuncionariosProjetoAsync(string departamento)
         {
             try
             {
@@ -188,7 +192,7 @@ namespace Apontamento.Views.Projetos
                 var data = await db.FuncionarioProjetos
                     .Include(f => f.PlanosProjetos) // Inclui as entradas relacionadas de DataPlanProjetoModel
                     .OrderBy(f => f.nome_func)
-                    .Where(f => f.departamento == "PROJETOS")
+                    .Where(f => f.departamento == departamento)
                     .ToListAsync();
                 return new ObservableCollection<FuncionarioProjetosModel>(data);
             }
@@ -198,14 +202,14 @@ namespace Apontamento.Views.Projetos
             }
         }
 
-        public async Task<ObservableCollection<FuncionarioModel>> GetFuncionariosAsync()
+        public async Task<ObservableCollection<FuncionarioModel>> GetFuncionariosAsync(string departamento)
         {
             try
             {
                 DataBaseSettings BaseSettings = DataBaseSettings.Instance;
                 using DatabaseContext db = new();
                 var data = await db.Funcionarios
-                    .Where(f => f.data_demissao == null && f.setor.Contains("PROJETOS"))
+                    .Where(f => f.data_demissao == null && f.setor.Contains(departamento))
                     .OrderBy(f => f.nome_apelido)
                     .ToListAsync();
                 return new ObservableCollection<FuncionarioModel>(data);
