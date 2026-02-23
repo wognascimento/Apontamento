@@ -26,7 +26,7 @@ namespace Producao
             this.Close();
         }
 
-        private void OnLogar(object sender, System.Windows.RoutedEventArgs e) 
+        private void OnLogar(object sender, System.Windows.RoutedEventArgs e)
         {
 
             if (!string.IsNullOrWhiteSpace(txtLogin.Text) && !string.IsNullOrWhiteSpace(txtSenha.Password))

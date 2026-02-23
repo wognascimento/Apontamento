@@ -8,7 +8,7 @@
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? ConnectionString { get; set; }
-        public string CaminhoSistema { get; set; } = $@"C:\SIG\Apontamento S.I.G";
+        public string CaminhoSistema { get; set; } = $@"C:\SIG\Apontamento S.I.G\";
         public static DataBaseSettings Instance => instance;
     }
 }
