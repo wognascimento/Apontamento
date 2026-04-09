@@ -2,6 +2,7 @@
 using Apontamento.Views.Producao;
 using Apontamento.Views.Producao.Consultas;
 using Apontamento.Views.Projetos;
+using Dapper;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Producao;
@@ -40,7 +41,7 @@ namespace Apontamento
         public string CurrentVisualStyle
         {
             get { return currentVisualStyle; }
-            set { currentVisualStyle = value; OnVisualStyleChanged();}
+            set { currentVisualStyle = value; OnVisualStyleChanged(); }
         }
 
         /// <summary>
@@ -241,7 +242,7 @@ namespace Apontamento
         private void OnControleFuncionarioPCP(object sender, RoutedEventArgs e)
         {
             adicionarFilho(new ControleFuncionarioPCP(), "CONTROLE FUNCIONÁRIO P.C.P", "ControleFuncionarioPCP");
-            
+
         }
 
         private void OnSetoresProducaoClick(object sender, RoutedEventArgs e)
@@ -278,7 +279,7 @@ namespace Apontamento
                 using DatabaseContext db = new();
 
                 var data = await db.QryFuroApontamentoProjetos
-                    .Join(db.FuncionarioProjetos, apontamento => apontamento.codfun, funcionario => funcionario.cod_func, (apontamento, funcionario) => 
+                    .Join(db.FuncionarioProjetos, apontamento => apontamento.codfun, funcionario => funcionario.cod_func, (apontamento, funcionario) =>
                     new
                     {
                         funcionario.departamento,
@@ -968,7 +969,7 @@ namespace Apontamento
             try
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
-                string sql = @"
+                /*string sql = @"
                     SELECT
                         nome_apelido,
                         setor,
@@ -976,10 +977,15 @@ namespace Apontamento
                         presente,
                         local_galpao
                     FROM ht.qry_base_funcionario_x_semana_grupo
-                    ORDER BY setor, nome_apelido;";
+                    ORDER BY setor, nome_apelido;";*/
 
                 using var connection = new NpgsqlConnection(BaseSettings.ConnectionString);
                 await connection.OpenAsync();
+
+
+                var sql = await connection.QueryFirstOrDefaultAsync<string>(@"SELECT ht.pivot_semanas();");
+
+                //SELECT ht.pivot_semanas()
 
                 var dataTable = new System.Data.DataTable();
                 using (var command = new NpgsqlCommand(sql, connection))
@@ -1001,9 +1007,9 @@ namespace Apontamento
                 // Import the DataTable
                 worksheet.ImportDataTable(dataTable, true, 1, 1);
 
-                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}Impressos\FUNCIONÁRIOS-PRESENTES.xlsx");
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}Impressos\FUNCIONARIOS-PRESENTES-SEMANA.xlsx");
 
-                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}Impressos\FUNCIONÁRIOS-PRESENTES.xlsx")
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}Impressos\FUNCIONARIOS-PRESENTES-SEMANA.xlsx")
                 {
                     UseShellExecute = true
                 });
@@ -1017,5 +1023,53 @@ namespace Apontamento
             }
         }
 
+        private async void OnFuncionariosPresentesMes(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
+
+                using var connection = new NpgsqlConnection(BaseSettings.ConnectionString);
+                await connection.OpenAsync();
+
+
+                var sql = await connection.QueryFirstOrDefaultAsync<string>(@"SELECT ht.pivot_mes();");
+
+                var dataTable = new System.Data.DataTable();
+                using (var command = new NpgsqlCommand(sql, connection))
+                using (var dataAdapter = new NpgsqlDataAdapter(command))
+                {
+                    dataAdapter.Fill(dataTable);
+                }
+
+                await connection.CloseAsync();
+
+                using ExcelEngine excelEngine = new();
+                IApplication application = excelEngine.Excel;
+                application.DefaultVersion = ExcelVersion.Excel2016;
+
+                // Create a workbook
+                IWorkbook workbook = application.Workbooks.Create(1);
+                IWorksheet worksheet = workbook.Worksheets[0];
+
+                // Import the DataTable
+                worksheet.ImportDataTable(dataTable, true, 1, 1);
+
+                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}Impressos\FUNCIONARIOS-PRESENTES-MES.xlsx");
+
+                Process.Start(new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}Impressos\FUNCIONARIOS-PRESENTES-MES.xlsx")
+                {
+                    UseShellExecute = true
+                });
+
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+            }
+            catch (Exception ex)
+            {
+                Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
+                MessageBox.Show(ex.Message);
+            }
+        }
+    
     }
 }

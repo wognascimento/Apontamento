@@ -37,7 +37,8 @@
                     <syncfusion:MenuItemAdv Header="Setores" Click="OnSetoresProducaoClick"/>
                     <syncfusion:MenuItemAdv Header="Funcioários">
                         <syncfusion:MenuItemAdv x:Name="funcionarioControle" Header="Controle P.C.P" Click="OnControleFuncionarioPCP"/>
-                        <syncfusion:MenuItemAdv x:Name="funcionarioPresente" Header="Funcionarios Presentes" Click="OnFuncionariosPresentes"/>
+                        <syncfusion:MenuItemAdv x:Name="funcionarioPresenteSemana" Header="Presentes Semana" Click="OnFuncionariosPresentes"/>
+                        <syncfusion:MenuItemAdv x:Name="funcionarioPresenteMes" Header="Presentes Mês" Click="OnFuncionariosPresentesMes"/>
                     </syncfusion:MenuItemAdv>
                 </syncfusion:MenuItemAdv>
                 
