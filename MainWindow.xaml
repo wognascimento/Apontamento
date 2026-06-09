@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Apontamento" 
-        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
         mc:Ignorable="d"
         Title="SISTEMA INTEGRADO DE GERENCIAMENTO - APONTAMENTO"
         Height="450" Width="800" WindowState="Maximized">
@@ -17,72 +17,69 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <syncfusion:MenuAdv
+        <telerik:RadMenu
             Grid.Row="0" 
-            ScrollViewer.HorizontalScrollBarVisibility="Visible" 
-            PopUpAnimationType="Slide" 
-            VerticalAlignment="Center" 
-            VerticalContentAlignment="Center">
+            VerticalAlignment="Center">
 
-            <syncfusion:MenuItemAdv Header="Produção">
-                <syncfusion:MenuItemAdv x:Name="DigitarProducao" Header="Apontar">
-                    <syncfusion:MenuItemAdv Header="Funcionário" Click="OnDigitarApontamentoProducaoFuncionarioClick"/>
-                    <syncfusion:MenuItemAdv Header="Semana" Click="OnDigitarApontamentoProducaoSemanaClick"/>
-                    <syncfusion:MenuItemAdv Header="Setor" Click="OnDigitarApontamentoProducaoSetorClick"/>
-                </syncfusion:MenuItemAdv>
-                <syncfusion:MenuItemAdv x:Name="ImprimirProducao" Header="Imprimir Ficha" Click="OnImprimirProducaoClick"/>
-                <syncfusion:MenuItemAdv Header="Consultas">
-                    <syncfusion:MenuItemAdv Header="Furo" Click="OnFuroProducaoClick"/>
-                    <syncfusion:MenuItemAdv Header="Apontamentos" Click="OnApontamentosProducaoClick"/>
-                    <syncfusion:MenuItemAdv Header="Setores" Click="OnSetoresProducaoClick"/>
-                    <syncfusion:MenuItemAdv Header="Funcioários">
-                        <syncfusion:MenuItemAdv x:Name="funcionarioControle" Header="Controle P.C.P" Click="OnControleFuncionarioPCP"/>
-                        <syncfusion:MenuItemAdv x:Name="funcionarioPresenteSemana" Header="Presentes Semana" Click="OnFuncionariosPresentes"/>
-                        <syncfusion:MenuItemAdv x:Name="funcionarioPresenteMes" Header="Presentes Mês" Click="OnFuncionariosPresentesMes"/>
-                    </syncfusion:MenuItemAdv>
-                </syncfusion:MenuItemAdv>
+            <telerik:RadMenuItem Header="Produção">
+                <telerik:RadMenuItem x:Name="DigitarProducao" Header="Apontar">
+                    <telerik:RadMenuItem Header="Funcionário" Click="OnDigitarApontamentoProducaoFuncionarioClick"/>
+                    <telerik:RadMenuItem Header="Semana" Click="OnDigitarApontamentoProducaoSemanaClick"/>
+                    <telerik:RadMenuItem Header="Setor" Click="OnDigitarApontamentoProducaoSetorClick"/>
+                </telerik:RadMenuItem>
+                <telerik:RadMenuItem x:Name="ImprimirProducao" Header="Imprimir Ficha" Click="OnImprimirProducaoClick"/>
+                <telerik:RadMenuItem Header="Consultas">
+                    <telerik:RadMenuItem Header="Furo" Click="OnFuroProducaoClick"/>
+                    <telerik:RadMenuItem Header="Apontamentos" Click="OnApontamentosProducaoClick"/>
+                    <telerik:RadMenuItem Header="Setores" Click="OnSetoresProducaoClick"/>
+                    <telerik:RadMenuItem Header="Funcioários">
+                        <telerik:RadMenuItem x:Name="funcionarioControle" Header="Controle P.C.P" Click="OnControleFuncionarioPCP"/>
+                        <telerik:RadMenuItem x:Name="funcionarioPresenteSemana" Header="Presentes Semana" Click="OnFuncionariosPresentes"/>
+                        <telerik:RadMenuItem x:Name="funcionarioPresenteMes" Header="Presentes Mês" Click="OnFuncionariosPresentesMes"/>
+                    </telerik:RadMenuItem>
+                </telerik:RadMenuItem>
                 
-            </syncfusion:MenuItemAdv>
+            </telerik:RadMenuItem>
 
 
-            <syncfusion:MenuItemAdv Header="Projetos">
-                <syncfusion:MenuItemAdv Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioProjetosClick"/>
-                <syncfusion:MenuItemAdv x:Name="DigitarProjetos" Header="Apontar" Click="OnDigitarApontamentoProjetosClick"/>
-                <syncfusion:MenuItemAdv Header="Consultas">
-                    <syncfusion:MenuItemAdv Header="Pendência" Click="OnApontamentoProjetosFuroClick"/>
-                    <syncfusion:MenuItemAdv Header="Geral" Click="OnApontamentoProjetosGeralClick"/>
-                    <syncfusion:MenuItemAdv Header="Atividades" Click="OnApontamentoProjetosAtividadesClick"/>
-                    <syncfusion:MenuItemAdv Header="Atividades Centro de Custo" Click="OnApontamentoProjetosAtividadesCentroCustoClick"/>
-                    <syncfusion:MenuItemAdv Header="Atividades Funcionário" Click="OnApontamentoProjetosAtividadesFuncionarioClick"/>
-                    <syncfusion:MenuItemAdv Header="Atividades Cliente" Click="OnApontamentoProjetosAtividadesClienteClick"/>
-                </syncfusion:MenuItemAdv>
-            </syncfusion:MenuItemAdv>
+            <telerik:RadMenuItem Header="Projetos">
+                <telerik:RadMenuItem Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioProjetosClick"/>
+                <telerik:RadMenuItem x:Name="DigitarProjetos" Header="Apontar" Click="OnDigitarApontamentoProjetosClick"/>
+                <telerik:RadMenuItem Header="Consultas">
+                    <telerik:RadMenuItem Header="Pendência" Click="OnApontamentoProjetosFuroClick"/>
+                    <telerik:RadMenuItem Header="Geral" Click="OnApontamentoProjetosGeralClick"/>
+                    <telerik:RadMenuItem Header="Atividades" Click="OnApontamentoProjetosAtividadesClick"/>
+                    <telerik:RadMenuItem Header="Atividades Centro de Custo" Click="OnApontamentoProjetosAtividadesCentroCustoClick"/>
+                    <telerik:RadMenuItem Header="Atividades Funcionário" Click="OnApontamentoProjetosAtividadesFuncionarioClick"/>
+                    <telerik:RadMenuItem Header="Atividades Cliente" Click="OnApontamentoProjetosAtividadesClienteClick"/>
+                </telerik:RadMenuItem>
+            </telerik:RadMenuItem>
             
 
-            <syncfusion:MenuItemAdv Header="Artes">
-                <syncfusion:MenuItemAdv Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioArtesClick"/>
-                <syncfusion:MenuItemAdv x:Name="DigitarArtes" Header="Apontar" Click="OnDigitarApontamentoArtesClick"/>
-                <syncfusion:MenuItemAdv Header="Consultas">
-                    <syncfusion:MenuItemAdv Header="Pendência" Click="OnApontamentoArtesFuroClick"/>
-                    <syncfusion:MenuItemAdv Header="Geral" Click="OnApontamentoArtesGeralClick"/>
-                    <syncfusion:MenuItemAdv Header="Atividades" Click="OnApontamentoArtesAtividadesClick"/>
-                    <syncfusion:MenuItemAdv Header="Atividades Centro de Custo" Click="OnApontamentoArtesAtividadesCentroCustoClick"/>
-                    <syncfusion:MenuItemAdv Header="Atividades Funcionário" Click="OnApontamentoArtesAtividadesFuncionarioClick"/>
-                    <syncfusion:MenuItemAdv Header="Atividades Cliente" Click="OnApontamentoArtesAtividadesClienteClick"/>
-                </syncfusion:MenuItemAdv>
-            </syncfusion:MenuItemAdv>
+            <telerik:RadMenuItem Header="Artes">
+                <telerik:RadMenuItem Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioArtesClick"/>
+                <telerik:RadMenuItem x:Name="DigitarArtes" Header="Apontar" Click="OnDigitarApontamentoArtesClick"/>
+                <telerik:RadMenuItem Header="Consultas">
+                    <telerik:RadMenuItem Header="Pendência" Click="OnApontamentoArtesFuroClick"/>
+                    <telerik:RadMenuItem Header="Geral" Click="OnApontamentoArtesGeralClick"/>
+                    <telerik:RadMenuItem Header="Atividades" Click="OnApontamentoArtesAtividadesClick"/>
+                    <telerik:RadMenuItem Header="Atividades Centro de Custo" Click="OnApontamentoArtesAtividadesCentroCustoClick"/>
+                    <telerik:RadMenuItem Header="Atividades Funcionário" Click="OnApontamentoArtesAtividadesFuncionarioClick"/>
+                    <telerik:RadMenuItem Header="Atividades Cliente" Click="OnApontamentoArtesAtividadesClienteClick"/>
+                </telerik:RadMenuItem>
+            </telerik:RadMenuItem>
             
             
 
-        </syncfusion:MenuAdv>
+        </telerik:RadMenu>
 
-        <syncfusion:DocumentContainer
-            Name="_mdi" 
-            Grid.Row="1" 
-            EnableAutoScroll="True"
-            Mode="TDI"
-            CloseButtonClick="_mdi_CloseButtonClick"
-            CloseAllTabs="_mdi_CloseAllTabs"/>
+        <telerik:RadDocking Grid.Row="1" x:Name="radDocking" HasDocumentHost="True">
+            <telerik:RadDocking.DocumentHost>
+                <telerik:RadSplitContainer>
+                    <telerik:RadPaneGroup x:Name="documentGroup"/>
+                </telerik:RadSplitContainer>
+            </telerik:RadDocking.DocumentHost>
+        </telerik:RadDocking>
 
 
         <StatusBar Grid.Row="2">
@@ -106,7 +103,7 @@
                 <TextBlock x:Name="txtUsername"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="2">
-                <syncfusion:SfLinearProgressBar x:Name="PbLoading" Height="20" Progress="80" Width="100" IsIndeterminate="True" Visibility="Hidden"/>
+                <telerik:RadProgressBar x:Name="PbLoading" Height="20" Value="80" Width="100" IsIndeterminate="True" Visibility="Hidden"/>
             </StatusBarItem>
             <StatusBarItem Grid.Column="3">
                 <Image Source="/icones/configuracao-de-dados-windows-metro-16.png" Width="16" Height="16" MouseDown="OnAlterarAno"/>

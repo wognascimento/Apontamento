@@ -1,14 +1,13 @@
-﻿<UserControl
+<UserControl x:Class="Apontamento.Views.Projetos.ApontamentoProjetos"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Apontamento.Views.Projetos"
-             xmlns:syncfusion="http://schemas.syncfusion.com/wpf" 
-             x:Class="Apontamento.Views.Projetos.ApontamentoProjetos"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Loaded="OnLoaded">
-
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             Loaded="OnLoaded">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -21,266 +20,135 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <syncfusion:SfTextInputLayout 
-            ContainerType="Outlined" 
-            Grid.Column="0" 
-            Grid.ColumnSpan="4"
-            Hint="Nome"
-            InputViewPadding="4"
-            CharCountVisibility="Collapsed"
-            HelperTextVisibility="Collapsed"
-            Margin="5">
-            <TextBox x:Name="nomeFuncionario" IsEnabled="False"/>
-        </syncfusion:SfTextInputLayout>
+        <telerik:RadWatermarkTextBox x:Name="nomeFuncionario" Grid.Column="0" Grid.ColumnSpan="4" Margin="5" IsEnabled="False" WatermarkContent="Nome"/>
+        <telerik:RadWatermarkTextBox x:Name="funcaoFuncionario" Grid.Column="4" Grid.ColumnSpan="3" Margin="5" IsEnabled="False" WatermarkContent="Funcao"/>
 
-        <syncfusion:SfTextInputLayout
-            ContainerType="Outlined" 
-            Grid.Column="4" 
-            Grid.ColumnSpan="3"
-            Hint="Função"
-            InputViewPadding="4"
-            CharCountVisibility="Collapsed"
-            HelperTextVisibility="Collapsed"
-            Margin="5">
-            <TextBox x:Name="funcaoFuncionario" IsEnabled="False"/>
-        </syncfusion:SfTextInputLayout>
-
-
-
-        <syncfusion:SfTextInputLayout 
-            ContainerType="Outlined" 
-            Grid.Column="0" 
+        <telerik:RadComboBox
+            x:Name="cmbIdTarefa"
+            Grid.Column="0"
             Grid.Row="1"
-            Hint="Centro de Custo"
-            InputViewPadding="4"
-            CharCountVisibility="Collapsed"
-            HelperTextVisibility="Collapsed"
-            Margin="5">
+            Margin="5"
+            DisplayMemberPath="Key"
+            IsEditable="True"
+            IsTextSearchEnabled="True"
+            ItemsSource="{Binding CentroCustos}"
+            OpenDropDownOnFocus="True"
+            SelectionChanged="OncmbIdTarefaSelectionChanged"
+            EmptyText="Centro de Custo"/>
 
-            <syncfusion:SfTextBoxExt
-                x:Name="cmbIdTarefa"
-                SearchItemPath="Key"
-                ShowDropDownButton="false"
-                AutoCompleteMode="SuggestAppend"
-                AutoCompleteSource="{Binding CentroCustos}" 
-                SelectedValue="{Binding ComplementoCheckList.id_aprovado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                SelectedItemChanged="OncmbIdTarefaSelectionChanged" 
-                ShowSuggestionsOnFocus="True" ShowClearButton="True"/>
-
-        </syncfusion:SfTextInputLayout>
-
-        <syncfusion:SfTextInputLayout
-            ContainerType="Outlined" 
-            Grid.Column="1" 
+        <telerik:RadComboBox
+            x:Name="cmbAtividade"
+            Grid.Column="1"
             Grid.Row="1"
-            Hint="Atividade"
-            InputViewPadding="4"
-            CharCountVisibility="Collapsed"
-            HelperTextVisibility="Collapsed"
-            Margin="5">
+            Margin="5"
+            DisplayMemberPath="atividade"
+            IsEditable="True"
+            IsTextSearchEnabled="True"
+            ItemsSource="{Binding Atividades}"
+            SelectedItem="{Binding Atividade, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            OpenDropDownOnFocus="True"
+            SelectionChanged="OncmbAtividadeSelectionChanged"
+            EmptyText="Atividade"/>
 
-            <syncfusion:SfTextBoxExt
-                x:Name="cmbAtividade"
-                SearchItemPath="atividade"
-                ShowDropDownButton="false"
-                AutoCompleteMode="SuggestAppend"
-                AutoCompleteSource="{Binding Atividades}" 
-                SelectedItem="{Binding Atividade, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                SelectedValue="{Binding ComplementoCheckList.id_aprovado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                SelectedItemChanged="OncmbAtividadeSelectionChanged" 
-                ShowSuggestionsOnFocus="True" ShowClearButton="True"/>
-
-        </syncfusion:SfTextInputLayout>
-
-
-        <syncfusion:SfTextInputLayout
-            ContainerType="Outlined" 
-            Grid.Column="2" 
+        <telerik:RadComboBox
+            x:Name="centroCustoApontamento"
+            Grid.Column="2"
             Grid.ColumnSpan="2"
             Grid.Row="1"
-            Hint="Cliente / Tema"
-            InputViewPadding="4"
-            CharCountVisibility="Collapsed"
-            HelperTextVisibility="Collapsed"
-            Margin="5">
+            Margin="5"
+            IsEditable="True"
+            IsTextSearchEnabled="True"
+            OpenDropDownOnFocus="True"
+            SelectionChanged="OncentroCustoApontamentoSelectionChanged"
+            EmptyText="Cliente / Tema"/>
 
-            <syncfusion:SfTextBoxExt
-                x:Name="centroCustoApontamento"
-                ShowDropDownButton="false"
-                AutoCompleteMode="SuggestAppend"
-                SelectedValue="{Binding ComplementoCheckList.id_aprovado, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                SelectedItemChanged="OncentroCustoApontamentoSelectionChanged" 
-                ShowSuggestionsOnFocus="True" ShowClearButton="True"/>
-
-        </syncfusion:SfTextInputLayout>
-
-
-        <syncfusion:SfTextInputLayout
-            ContainerType="Outlined" 
-            Grid.Column="4" 
+        <telerik:RadDatePicker
+            x:Name="dataApontamento"
+            Grid.Column="4"
             Grid.Row="1"
-            Hint="Data"
-            InputViewPadding="4"
-            CharCountVisibility="Collapsed"
-            HelperTextVisibility="Collapsed"
-            Margin="5">
+            Margin="5"
+            SelectionChanged="dataApontamento_SelectionChanged"/>
 
-            <syncfusion:DateTimeEdit 
-                x:Name="dataApontamento"
-                Height="15" 
-                MinHeight="0" 
-                DateTimeChanged="dataApontamento_DateTimeChanged"/>
-
-        </syncfusion:SfTextInputLayout>
-
-
-        <syncfusion:SfTextInputLayout
-            ContainerType="Outlined" 
-            Grid.Column="5" 
+        <telerik:RadNumericUpDown
+            x:Name="totalHora"
+            Grid.Column="5"
             Grid.Row="1"
-            Hint="Hora Trabalhada"
-            InputViewPadding="4"
-            CharCountVisibility="Collapsed"
-            HelperTextVisibility="Collapsed"
-            Margin="5">
-            <syncfusion:DoubleTextBox x:Name="totalHora" />
-        </syncfusion:SfTextInputLayout>
+            Margin="5"
+            NumberDecimalDigits="2"
+            Minimum="0"/>
 
-
-
-
-        <syncfusion:SfTextInputLayout
-            ContainerType="Outlined" 
-            Grid.Column="0" 
+        <telerik:RadWatermarkTextBox
+            x:Name="DescricaoAtividade"
+            Grid.Column="0"
             Grid.ColumnSpan="4"
             Grid.Row="2"
-            Hint="Descrição Atividade"
-            InputViewPadding="4"
-            CharCountVisibility="Collapsed"
-            HelperTextVisibility="Collapsed"
-            Margin="5">
-            
-            <TextBox x:Name="DescricaoAtividade" IsEnabled="False" TextWrapping="Wrap"/>
-            
-        </syncfusion:SfTextInputLayout>
+            Margin="5"
+            IsEnabled="False"
+            TextWrapping="Wrap"
+            WatermarkContent="Descricao Atividade"/>
 
-
-        <syncfusion:SfTextInputLayout
-            ContainerType="Outlined" 
-            Grid.Column="4" 
+        <telerik:RadWatermarkTextBox
+            x:Name="observacao"
+            Grid.Column="4"
             Grid.ColumnSpan="2"
             Grid.Row="2"
-            Hint="Observação"
-            InputViewPadding="4"
-            CharCountVisibility="Collapsed"
-            HelperTextVisibility="Collapsed"
-            Margin="5">
-            <TextBox x:Name="observacao"/>
-        </syncfusion:SfTextInputLayout>
+            Margin="5"
+            WatermarkContent="Observacao"/>
 
-        <syncfusion:ButtonAdv 
-            x:Name="buttonAdv" 
-            Label="GRAVAR" 
-            Grid.Row="2" 
-            Grid.Column="6" 
-            Width="80" 
-            SizeMode="Normal"
-            SmallIcon ="{x:Null}"
-            HorizontalAlignment="Left" Click="OnApontarHoraClick"/>
+        <telerik:RadButton
+            x:Name="buttonAdv"
+            Grid.Row="2"
+            Grid.Column="6"
+            Width="80"
+            HorizontalAlignment="Left"
+            Content="GRAVAR"
+            Click="OnApontarHoraClick"/>
 
-        <syncfusion:SfDataGrid 
-            Grid.Column="0" 
+        <telerik:RadGridView
+            Grid.Column="0"
             Grid.ColumnSpan="4"
             Grid.Row="3"
-            AutoGenerateColumns="False" 
-            AllowResizingColumns="True"
-            AllowDraggingColumns="True"
-            ColumnSizer="None" AllowFiltering="True"
-            ShowRowHeader="True" 
-            ItemsSource="{Binding HorasApontadas}" 
+            AutoGenerateColumns="False"
+            CanUserResizeColumns="True"
+            CanUserReorderColumns="True"
+            IsFilteringAllowed="True"
+            ItemsSource="{Binding HorasApontadas}"
             SelectedItem="{Binding HoraApontada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            RowValidating="OnRowValidating">
+            RowValidated="OnRowValidated"
+            ShowGroupPanel="False">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn Header="Atividade" DataMemberBinding="{Binding desc_atividade}" IsReadOnly="True"/>
+                <telerik:GridViewDataColumn Header="Cliente / Tema" DataMemberBinding="{Binding cliente_tema}" IsReadOnly="True"/>
+                <telerik:GridViewDataColumn Header="Data" DataMemberBinding="{Binding data}" DataFormatString="{}{0:dd/MM/yyyy}" IsReadOnly="True"/>
+                <telerik:GridViewDataColumn Header="Semana" DataMemberBinding="{Binding semana}" DataFormatString="{}{0:N0}" IsReadOnly="True"/>
+                <telerik:GridViewDataColumn Header="Hora" DataMemberBinding="{Binding hora_trabalhada}" DataFormatString="{}{0:N2}"/>
+                <telerik:GridViewDataColumn Header="Observacao" DataMemberBinding="{Binding observacao}"/>
+            </telerik:RadGridView.Columns>
+        </telerik:RadGridView>
 
-            <syncfusion:SfDataGrid.StackedHeaderRows>
-                <syncfusion:StackedHeaderRow>
-                    <syncfusion:StackedHeaderRow.StackedColumns>
-                        <syncfusion:StackedColumn ChildColumns="desc_atividade,cliente_tema,data,semana,hora_trabalhada,observacao" HeaderText="APONTAMENTO" MappingName="SalesDetails"/>
-                    </syncfusion:StackedHeaderRow.StackedColumns>
-                </syncfusion:StackedHeaderRow>
-            </syncfusion:SfDataGrid.StackedHeaderRows>
-            
-            <syncfusion:SfDataGrid.Columns>
-                <syncfusion:GridTextColumn HeaderText="Atividade" MappingName="desc_atividade"/>
-                <syncfusion:GridTextColumn HeaderText="Ciente / Tema" MappingName="cliente_tema"/>
-                <syncfusion:GridDateTimeColumn HeaderText="Data" MappingName="data"/>
-                <syncfusion:GridNumericColumn HeaderText="Semana" MappingName="semana" NumberDecimalDigits="0" ColumnSizer="Auto"/>
-                <syncfusion:GridNumericColumn HeaderText="Hora" MappingName="hora_trabalhada" AllowEditing="True"/>
-                <syncfusion:GridTextColumn HeaderText="Observação" MappingName="observacao" AllowEditing="True"/>
-            </syncfusion:SfDataGrid.Columns>
-
-            <syncfusion:SfDataGrid.TableSummaryRows>
-                <syncfusion:GridTableSummaryRow  Title="Resumo: {TotalSum} Horas e {TotalQuantity} Tarefas Apontadas." ShowSummaryInRow="true">
-                    <syncfusion:GridTableSummaryRow.SummaryColumns>
-                        <syncfusion:GridSummaryColumn 
-                            Name="TotalSum"
-                            Format="'{Sum:n}'"
-                            MappingName="hora_trabalhada"
-                            SummaryType="DoubleAggregate" />
-                        <syncfusion:GridSummaryColumn 
-                            Name="TotalQuantity"
-                            MappingName="cod_linha"
-                            Format="'{Count:d}'"
-                            SummaryType="CountAggregate" />
-                    </syncfusion:GridTableSummaryRow.SummaryColumns>
-                </syncfusion:GridTableSummaryRow>
-            </syncfusion:SfDataGrid.TableSummaryRows>
-
-        </syncfusion:SfDataGrid>
-
-
-
-        <syncfusion:SfDataGrid 
-            Grid.Column="4" 
+        <telerik:RadGridView
+            Grid.Column="4"
             Grid.ColumnSpan="3"
             Grid.Row="3"
-            AutoGenerateColumns="False" 
-            AllowResizingColumns="True"
-            AllowDraggingColumns="True"
-            ColumnSizer="Auto"
-            ShowRowHeader="True" 
-            ItemsSource="{Binding FuroProjetos}">
-
-            <syncfusion:SfDataGrid.StackedHeaderRows>
-                <syncfusion:StackedHeaderRow>
-                    <syncfusion:StackedHeaderRow.StackedColumns>
-                        <syncfusion:StackedColumn ChildColumns="data,dia,hora_minima,hora_trabalhada,hora_trabalhada,validacao_novo" HeaderText="FURO" MappingName="SalesDetails"/>
-                    </syncfusion:StackedHeaderRow.StackedColumns>
-                </syncfusion:StackedHeaderRow>
-            </syncfusion:SfDataGrid.StackedHeaderRows>
-
-            
-            <syncfusion:SfDataGrid.Columns>
-                <syncfusion:GridDateTimeColumn HeaderText="Data" MappingName="data"/>
-                <syncfusion:GridTextColumn HeaderText="Dia" MappingName="dia"/>
-                <syncfusion:GridNumericColumn HeaderText="Ideal" MappingName="hora_minima"/>
-                <syncfusion:GridNumericColumn HeaderText="Total" MappingName="hora_trabalhada"/>
-                <syncfusion:GridNumericColumn HeaderText="Furo" MappingName="validacao_novo"/>
-            </syncfusion:SfDataGrid.Columns>
-
-        </syncfusion:SfDataGrid>
-
-
-
-
-
-
-
+            AutoGenerateColumns="False"
+            CanUserResizeColumns="True"
+            CanUserReorderColumns="True"
+            ItemsSource="{Binding FuroProjetos}"
+            IsReadOnly="True"
+            ShowGroupPanel="False">
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn Header="Data" DataMemberBinding="{Binding data}" DataFormatString="{}{0:dd/MM/yyyy}"/>
+                <telerik:GridViewDataColumn Header="Dia" DataMemberBinding="{Binding dia}"/>
+                <telerik:GridViewDataColumn Header="Ideal" DataMemberBinding="{Binding hora_minima}" DataFormatString="{}{0:N2}"/>
+                <telerik:GridViewDataColumn Header="Total" DataMemberBinding="{Binding hora_trabalhada}" DataFormatString="{}{0:N2}"/>
+                <telerik:GridViewDataColumn Header="Furo" DataMemberBinding="{Binding validacao_novo}" DataFormatString="{}{0:N2}"/>
+            </telerik:RadGridView.Columns>
+        </telerik:RadGridView>
     </Grid>
-
 </UserControl>

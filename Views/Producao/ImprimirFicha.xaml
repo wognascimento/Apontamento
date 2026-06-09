@@ -1,10 +1,10 @@
-﻿<UserControl xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"  x:Class="Apontamento.Views.Producao.ImprimirFicha"
+﻿<UserControl x:Class="Apontamento.Views.Producao.ImprimirFicha"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"  
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Apontamento.Views.Producao" 
-             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
              xmlns:converter="clr-namespace:Apontamento.Views.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Loaded="UserControl_Loaded">
@@ -26,22 +26,29 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <syncfusion:SfMultiColumnDropDownControl
+            <telerik:RadComboBox
                 x:Name="semana"
                 Grid.Column="0"
                 ItemsSource="{Binding Semanas}"
-                DisplayMember="Semana"
+                SelectedItem="{Binding SemanaSelecionada, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                IsEditable="False"
+                OpenDropDownOnFocus="True"
                 Margin="0,5,0,5">
-
-                <syncfusion:SfMultiColumnDropDownControl.Columns>
-                    <syncfusion:GridNumericColumn
-                        MappingName="Semana" 
-                        DisplayBinding="{Binding Semana, Converter={StaticResource ConverterNumber}}"/>
-                    <syncfusion:GridDateTimeColumn MappingName="PrimeiraData" />
-                    <syncfusion:GridDateTimeColumn MappingName="UltimaData" />
-                </syncfusion:SfMultiColumnDropDownControl.Columns>
-                
-            </syncfusion:SfMultiColumnDropDownControl>
+                <telerik:RadComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid MinWidth="360">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="140"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{Binding Semana}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding PrimeiraData, StringFormat={}{0:dd/MM/yyyy}}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding UltimaData, StringFormat={}{0:dd/MM/yyyy}}"/>
+                        </Grid>
+                    </DataTemplate>
+                </telerik:RadComboBox.ItemTemplate>
+            </telerik:RadComboBox>
 
             <telerik:RadButton 
                 Grid.Column="1" 
@@ -55,33 +62,32 @@
 
 
 
-        <syncfusion:SfDataGrid 
+        <telerik:RadGridView
             x:Name="DGFuncionarios"
             Grid.Row="1"
             AutoGenerateColumns="False" 
-            AllowResizingColumns="True"
-            AllowDraggingColumns="True"
-            AllowFiltering="True"
-            ShowRowHeader="True" 
+            CanUserResizeColumns="True"
+            CanUserReorderColumns="True"
+            IsFilteringAllowed="True"
+            ShowGroupPanel="False"
+            IsReadOnly="True"
+            SelectionMode="Extended"
             ItemsSource="{Binding Funcionarios}" 
             SelectedItem="{Binding Funcionario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Margin="0,0,6,0">
 
-            <syncfusion:SfDataGrid.Columns>
-                <syncfusion:GridNumericColumn
-                    MappingName="codfun" 
-                    DisplayBinding="{Binding codfun, Converter={StaticResource ConverterNumber}}" 
-                    ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="setor" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="sub_setor" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="nome_apelido" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="apelido" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="cidade" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="local" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridDateTimeColumn MappingName="data_admissao" ColumnSizer="SizeToCells"/>
-            </syncfusion:SfDataGrid.Columns>
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding codfun}" Header="codfun" Width="Auto"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding setor}" Header="setor" Width="Auto"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding sub_setor}" Header="sub_setor" Width="Auto"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding nome_apelido}" Header="nome_apelido" Width="Auto"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding apelido}" Header="apelido" Width="Auto"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding cidade}" Header="cidade" Width="Auto"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding local}" Header="local" Width="Auto"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding data_admissao}" Header="data_admissao" DataFormatString="{}{0:dd/MM/yyyy}" Width="Auto"/>
+            </telerik:RadGridView.Columns>
 
-        </syncfusion:SfDataGrid>
+        </telerik:RadGridView>
 
     </Grid>
 </UserControl>

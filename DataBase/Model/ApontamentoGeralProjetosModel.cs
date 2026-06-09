@@ -1,11 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Apontamento.DataBase.Model
-{
-    [Keyless]
-    [Table("qry_apontamento_geral_projetos", Schema = "ht")]
+{    [Table("qry_apontamento_geral_projetos", Schema = "ht")]
     public class ApontamentoGeralProjetosModel
     {
         public long? cod_linha { get; set; }
@@ -24,3 +21,4 @@ namespace Apontamento.DataBase.Model
         public double? hora_trabalhada { get; set; }
     }
 }
+

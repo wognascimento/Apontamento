@@ -1,10 +1,7 @@
-﻿using Apontamento.DataBase;
+using Apontamento.DataBase;
 using Apontamento.DataBase.Model;
-using Microsoft.EntityFrameworkCore;
+using Dapper;
 using Npgsql;
-using Syncfusion.UI.Xaml.Grid;
-using Syncfusion.UI.Xaml.Grid.Helpers;
-using Syncfusion.Windows.Shared;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -13,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Telerik.Windows.Controls;
+using Telerik.Windows.Controls.GridView;
 
 namespace Apontamento.Views.Producao
 {
@@ -34,9 +33,10 @@ namespace Apontamento.Views.Producao
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
                 ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
                 vm.Funcionarios = await Task.Run(vm.GetFuncionariosAsync);
-                var dtApontamento = dataApontamento.DateTime;
-                vm.Semana = await Task.Run(() => vm.GetSemanaAsync(dtApontamento));
-                SemanaApontamento.Text = vm.Semana.semana.ToString();
+
+                dataApontamento.SelectedDate ??= DateTime.Today;
+                await AtualizarSemanaAsync(dataApontamento.SelectedDate);
+
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
             catch (Exception ex)
@@ -46,36 +46,52 @@ namespace Apontamento.Views.Producao
             }
         }
 
-        private async void dataApontamento_DateTimeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private async void dataApontamento_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
             {
-                ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
-                var dtApontamento = e.NewValue as DateTime?;
-                vm.Semana = await Task.Run(() => vm.GetSemanaAsync(dtApontamento));
-                SemanaApontamento.Text = vm.Semana.semana.ToString();
+                await AtualizarSemanaAsync(dataApontamento.SelectedDate);
+                await CarregarApontamentosFuncionarioAsync();
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex?.InnerException?.Message, "Erro ao inserir", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex?.InnerException?.Message ?? ex.Message, "Erro ao inserir", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
         }
 
-        private async void OnRowValidating(object sender, RowValidatingEventArgs e)
+        private async Task AtualizarSemanaAsync(DateTime? data)
         {
-            var sfdatagrid = sender as SfDataGrid;
+            ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
+            vm.Semana = await Task.Run(() => vm.GetSemanaAsync(data));
+            SemanaApontamento.Text = vm.Semana?.semana.ToString() ?? string.Empty;
+        }
+
+        private async Task CarregarApontamentosFuncionarioAsync()
+        {
+            ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
+            if (vm.Semana is null || vm.Funcionario is null)
+                return;
+
+            vm.Hts = await Task.Run(() => vm.GetHtsAsync(vm.Semana.data, vm.Funcionario.barcode));
+            vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm.Funcionario.codfun));
+        }
+
+        private async void DGDigitacao_RowValidated(object sender, GridViewRowValidatedEventArgs e)
+        {
+            if (e.Row.Item is not HtModel data)
+                return;
+
             ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
             try
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
-                vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(((HtModel)e.RowData)));
-
-                ((HtModel)e.RowData).cod = vm.Ht.cod;
-                sfdatagrid.View.Refresh();
-                vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm?.Funcionario?.codfun));
+                vm.Ht = await Task.Run(() => vm.AddApontamentoAsync(data));
+                data.cod = vm.Ht.cod;
+                DGDigitacao.Rebind();
+                vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm.Funcionario?.codfun));
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
             catch (Exception ex)
@@ -89,14 +105,12 @@ namespace Apontamento.Views.Producao
             }
         }
 
-        private async void OnFuncionariosSelectionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private async void OnFuncionariosSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
             {
-                ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
-                vm.Hts = await Task.Run(() => vm.GetHtsAsync(vm.Semana.data, vm?.Funcionario?.barcode));
-                vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm?.Funcionario?.codfun));
+                await CarregarApontamentosFuncionarioAsync();
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
             catch (Exception ex)
@@ -106,46 +120,40 @@ namespace Apontamento.Views.Producao
             }
         }
 
-        private void SfDataGrid_AddNewRowInitiating(object sender, Syncfusion.UI.Xaml.Grid.AddNewRowInitiatingEventArgs e)
+        private void DGDigitacao_AddingNewDataItem(object sender, GridViewAddingNewEventArgs e)
         {
             ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
+            if (vm.Semana is null || vm.Funcionario is null)
+                throw new InvalidOperationException("Selecione a data e o funcionário antes de inserir apontamento.");
 
-            var data = e.NewObject as HtModel;
-            data.data = vm.Semana.data;
-            data.semana = vm.Semana.semana;
-            data.barcode = vm.Funcionario.barcode;
-            data.codfun = vm.Funcionario.codfun;
-            data.cadastrado_por = Environment.UserName;
-            data.inclusao = DateTime.Now;
+            e.NewObject = new HtModel
+            {
+                data = vm.Semana.data,
+                semana = vm.Semana.semana,
+                barcode = vm.Funcionario.barcode,
+                codfun = vm.Funcionario.codfun,
+                cadastrado_por = Environment.UserName,
+                inclusao = DateTime.Now
+            };
         }
 
-        private async void SfDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void DGFuro_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            //ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
-
-
             try
             {
                 ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
+                if (vm.FuroHt is null)
+                    return;
+
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
-                dataApontamento.DateTime = vm.FuroHt.data_ideal;
-                //var dtApontamento = e.NewValue as DateTime?;
-                vm.Semana = await Task.Run(() => vm.GetSemanaAsync(vm.FuroHt.data_ideal));
-                SemanaApontamento.Text = vm.Semana.semana.ToString();
-                vm.Hts = await Task.Run(() => vm.GetHtsAsync(vm.Semana.data, vm?.Funcionario?.barcode));
-                vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm?.Funcionario?.codfun));
+                dataApontamento.SelectedDate = vm.FuroHt.data_ideal;
+                await AtualizarSemanaAsync(vm.FuroHt.data_ideal);
+                await CarregarApontamentosFuncionarioAsync();
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
-
-                /*
-                DGDigitacao.View.AddNew();
-                this.DGDigitacao.View.CommitNew();
-                */
-
-
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex?.InnerException?.Message, "Erro ao inserir", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(ex?.InnerException?.Message ?? ex.Message, "Erro ao inserir", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
         }
@@ -153,127 +161,123 @@ namespace Apontamento.Views.Producao
 
     public class ApontamentoProducaoViewModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void RaisePropertyChanged(string propName)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
-        }
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        private ObservableCollection<FuncionarioAtivoModel> _funcionarios;
+        private ObservableCollection<FuncionarioAtivoModel> _funcionarios = new();
         public ObservableCollection<FuncionarioAtivoModel> Funcionarios
         {
             get { return _funcionarios; }
-            set { _funcionarios = value; RaisePropertyChanged("Funcionarios"); }
+            set { _funcionarios = value; RaisePropertyChanged(nameof(Funcionarios)); }
         }
 
-        private FuncionarioAtivoModel _funcionario;
-        public FuncionarioAtivoModel Funcionario
+        private FuncionarioAtivoModel? _funcionario;
+        public FuncionarioAtivoModel? Funcionario
         {
             get { return _funcionario; }
-            set { _funcionario = value; RaisePropertyChanged("Funcionario"); }
+            set { _funcionario = value; RaisePropertyChanged(nameof(Funcionario)); }
         }
 
-
-        private ObservableCollection<HtModel> _hts;
+        private ObservableCollection<HtModel> _hts = new();
         public ObservableCollection<HtModel> Hts
         {
             get { return _hts; }
-            set { _hts = value; RaisePropertyChanged("Hts"); }
+            set { _hts = value; RaisePropertyChanged(nameof(Hts)); }
         }
 
-        private HtModel _ht;
-        public HtModel Ht
+        private HtModel? _ht;
+        public HtModel? Ht
         {
             get { return _ht; }
-            set { _ht = value; RaisePropertyChanged("Ht"); }
+            set { _ht = value; RaisePropertyChanged(nameof(Ht)); }
         }
 
-        private DataPlanejamentoModel _semana;
-        public DataPlanejamentoModel Semana
+        private DataPlanejamentoModel? _semana;
+        public DataPlanejamentoModel? Semana
         {
             get { return _semana; }
-            set { _semana = value; RaisePropertyChanged("Semana"); }
+            set { _semana = value; RaisePropertyChanged(nameof(Semana)); }
         }
 
-        private ObservableCollection<QryHtFuroGeralModel> _futoHts;
+        private ObservableCollection<QryHtFuroGeralModel> _futoHts = new();
         public ObservableCollection<QryHtFuroGeralModel> FutoHts
         {
             get { return _futoHts; }
-            set { _futoHts = value; RaisePropertyChanged("FutoHts"); }
+            set { _futoHts = value; RaisePropertyChanged(nameof(FutoHts)); }
         }
 
-        private QryHtFuroGeralModel _furoHt;
-        public QryHtFuroGeralModel FuroHt
+        private QryHtFuroGeralModel? _furoHt;
+        public QryHtFuroGeralModel? FuroHt
         {
             get { return _furoHt; }
-            set { _furoHt = value; RaisePropertyChanged("FuroHt"); }
+            set { _furoHt = value; RaisePropertyChanged(nameof(FuroHt)); }
         }
-
 
         public async Task<ObservableCollection<FuncionarioAtivoModel>> GetFuncionariosAsync()
         {
-            try
-            {
-                DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-                using DatabaseContext db = new();
-                var data = await db.FuncionarioAtivos
-                    .OrderBy(c => c.nome_apelido)
-                    .ToListAsync();
-                return new ObservableCollection<FuncionarioAtivoModel>(data);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            using var db = DbConnectionFactory.Create();
+            var data = await db.QueryAsync<FuncionarioAtivoModel>(
+                @"SELECT * FROM ht.funcionarios_ativos_geral ORDER BY nome_apelido;");
+
+            return new ObservableCollection<FuncionarioAtivoModel>(data);
         }
 
-        public async Task<DataPlanejamentoModel> GetSemanaAsync(DateTime? dataApontamento)
+        public async Task<DataPlanejamentoModel?> GetSemanaAsync(DateTime? dataApontamento)
         {
-            try
-            {
-                DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-                using DatabaseContext db = new();
-                var data = await db.DataPlanejamentos
-                    .Where(c => c.data == dataApontamento)
-                    .FirstOrDefaultAsync();
-                return data;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            using var db = DbConnectionFactory.Create();
+            return await db.QueryFirstOrDefaultAsync<DataPlanejamentoModel>(
+                @"SELECT * FROM ht.t_data_planejamento WHERE data = @dataApontamento;",
+                new { dataApontamento });
         }
 
         public async Task<ObservableCollection<HtModel>> GetHtsAsync(DateTime? date, string? barcode)
         {
-            try
-            {
-                DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-                using DatabaseContext db = new();
-                var data = await db.Hts
-                    .OrderBy(c => c.cod)
-                    .Where(c => c.data == date && c.barcode == barcode)
-                    .ToListAsync();
-                return new ObservableCollection<HtModel>(data);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            using var db = DbConnectionFactory.Create();
+            var data = await db.QueryAsync<HtModel>(
+                @"SELECT * FROM ht.ht WHERE data = @date AND barcode = @barcode ORDER BY cod;",
+                new { date, barcode });
+
+            return new ObservableCollection<HtModel>(data);
         }
 
         public async Task<HtModel> AddApontamentoAsync(HtModel ht)
         {
             try
             {
-                using DatabaseContext db = new();
-                //await db.Hts.SingleMergeAsync(ht);
-                var htExistente = await db.Hts.FindAsync(ht.cod);
-                if (htExistente == null)
-                    await db.Hts.AddAsync(ht);
+                using var db = DbConnectionFactory.Create();
+                if (ht.cod.HasValue && await db.ExecuteScalarAsync<int>("SELECT COUNT(1) FROM ht.ht WHERE cod = @cod;", ht) > 0)
+                {
+                    await db.ExecuteAsync(
+                        @"UPDATE ht.ht SET
+                            data = @data,
+                            num_os = @num_os,
+                            tarefas = @tarefas,
+                            quantidadehorastrabalhadas = @quantidadehorastrabalhadas,
+                            quantidadeunidadeproduzida = @quantidadeunidadeproduzida,
+                            semana = @semana,
+                            alterado_por = @alterado_por,
+                            alteracao = COALESCE(@alteracao, now()),
+                            barcode = @barcode,
+                            obs = @obs,
+                            tbl_servicos_num_os = @tbl_servicos_num_os,
+                            apontamnetos_num_os = @apontamnetos_num_os,
+                            codfun = @codfun
+                          WHERE cod = @cod;",
+                        ht);
+                }
                 else
-                    db.Entry(htExistente).CurrentValues.SetValues(ht);
-                await db.SaveChangesAsync();
+                {
+                    ht.cod = await db.ExecuteScalarAsync<long>(
+                        @"INSERT INTO ht.ht
+                            (data, num_os, tarefas, quantidadehorastrabalhadas, quantidadeunidadeproduzida,
+                             semana, cadastrado_por, inclusao, alterado_por, alteracao, barcode, obs,
+                             tbl_servicos_num_os, apontamnetos_num_os, codfun)
+                          VALUES
+                            (@data, @num_os, @tarefas, @quantidadehorastrabalhadas, @quantidadeunidadeproduzida,
+                             @semana, @cadastrado_por, @inclusao, @alterado_por, @alteracao, @barcode, @obs,
+                             @tbl_servicos_num_os, @apontamnetos_num_os, @codfun)
+                          RETURNING cod;",
+                        ht);
+                }
 
                 return ht;
             }
@@ -285,20 +289,15 @@ namespace Apontamento.Views.Producao
 
         public async Task<ObservableCollection<QryHtFuroGeralModel>> GetFuroHtsAsync(long? codfun)
         {
-            try
-            {
-                DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-                using DatabaseContext db = new();
-                var data = await db.QryHtFuros
-                    .OrderBy(c => c.data_ideal)
-                    .Where(c => c.codfun == codfun)
-                    .ToListAsync();
-                return new ObservableCollection<QryHtFuroGeralModel>(data);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            using var db = DbConnectionFactory.Create();
+            var data = await db.QueryAsync<QryHtFuroGeralModel>(
+                @"SELECT * FROM ht.qry_ht_furo_geral WHERE codfun = @codfun ORDER BY data_ideal;",
+                new { codfun });
+
+            return new ObservableCollection<QryHtFuroGeralModel>(data);
         }
+
+        private void RaisePropertyChanged(string propName)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
     }
 }

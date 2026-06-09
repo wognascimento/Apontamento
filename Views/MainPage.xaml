@@ -9,6 +9,6 @@
     d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
 	<!-- Add your text block here -->
-        <TextBlock Text="Welcome to Syncfusion" FontFamily="Segeo UI" FontSize="44" HorizontalAlignment="Center" VerticalAlignment="Top" />
+        <TextBlock Text="Apontamento" FontFamily="Segoe UI" FontSize="44" HorizontalAlignment="Center" VerticalAlignment="Top" />
     </Grid>
 </Page>

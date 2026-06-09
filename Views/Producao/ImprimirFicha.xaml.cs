@@ -1,12 +1,13 @@
-﻿using Apontamento.DataBase;
+using Apontamento.DataBase;
 using Apontamento.DataBase.Model;
-using Microsoft.EntityFrameworkCore;
-using Syncfusion.Linq;
-using Syncfusion.XlsIO;
+using ClosedXML.Excel;
+using Dapper;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,8 +22,7 @@ namespace Apontamento.Views.Producao
     /// </summary>
     public partial class ImprimirFicha : UserControl
     {
-
-        DataBaseSettings BaseSettings = DataBaseSettings.Instance;
+        private readonly DataBaseSettings BaseSettings = DataBaseSettings.Instance;
 
         public ImprimirFicha()
         {
@@ -49,397 +49,230 @@ namespace Apontamento.Views.Producao
 
         private void OnPrintFichaClick(object sender, RoutedEventArgs e)
         {
-
             try
             {
+                var funcionarios = DGFuncionarios.Items.OfType<FuncionarioModel>().ToList();
+                var semanaSelecionada = semana.SelectedItem as DataSemanaModel;
 
-                var filteredResult = this.DGFuncionarios.View.Records.Select(recordentry => recordentry.Data).ToList();
-                ImprimirFichaViewModel vm = (ImprimirFichaViewModel)DataContext;
-                DataSemanaModel semana = (DataSemanaModel)this.semana.SelectedItem;
-
-                if (semana == null)
+                if (semanaSelecionada == null)
                 {
-                    MessageBox.Show("Seleciona a Semana para imprimir a ficha","Semana");
+                    MessageBox.Show("Seleciona a Semana para imprimir a ficha", "Semana");
                     return;
                 }
 
-                if (filteredResult.Count == 0)
+                if (funcionarios.Count == 0)
                 {
                     MessageBox.Show("Precisa de pelo menos um funcionário para imprimir a ficha.", "Pessoas");
                     return;
                 }
 
-                using ExcelEngine excelEngine = new();
-                IApplication application = excelEngine.Excel;
-                application.DefaultVersion = ExcelVersion.Xlsx;
-                IWorkbook workbook = application.Workbooks.Open(@$"{BaseSettings.CaminhoSistema}\Modelos\MODELO-FICHA-APONTAMENTO.xlsx");
-                IWorksheet worksheet = workbook.Worksheets[0];
+                var modeloPath = Path.Combine(BaseSettings.CaminhoSistema, "Modelos", "MODELO-FICHA-APONTAMENTO.xlsx");
+                var impressosPath = Path.Combine(BaseSettings.CaminhoSistema, "Impressos");
+                var arquivoPath = Path.Combine(impressosPath, "FICHA-APONTAMENTO.xlsx");
 
-                int TotFunc = filteredResult.Count;
-                int print = 0;
-                var ficha = "ESQUERDA";
+                Directory.CreateDirectory(impressosPath);
 
-                for (int i = 0; i < filteredResult.Count; i++)
+                for (var index = 0; index < funcionarios.Count; index += 2)
                 {
-                    FuncionarioModel func = (FuncionarioModel)filteredResult[i];
+                    using var workbook = new XLWorkbook(modeloPath);
+                    var worksheet = workbook.Worksheet(1);
 
-                    switch (ficha)
+                    PreencherFicha(workbook, worksheet, semanaSelecionada, funcionarios[index], FichaLado.Esquerda);
+
+                    if (index + 1 < funcionarios.Count)
                     {
-                        case "ESQUERDA":
-                            {
-
-                                worksheet.Range["B1"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["D1"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["B2"].Text = func.nome_apelido;
-                                worksheet.Range["B3"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["B4"].DateTime = semana.PrimeiraData;
-                                worksheet.Range["FUNC1_DATA1"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA1"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA1"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA1"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA1"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["B12"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["D12"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["B13"].Text = func.nome_apelido;
-                                worksheet.Range["B14"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["B15"].DateTime = semana.PrimeiraData.AddDays(1);
-                                worksheet.Range["FUNC1_DATA2"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA2"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA2"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA2"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA2"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["B23"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["D23"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["B24"].Text = func.nome_apelido;
-                                worksheet.Range["B25"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["B26"].DateTime = semana.PrimeiraData.AddDays(2);
-                                worksheet.Range["FUNC1_DATA3"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA3"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA3"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA3"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA3"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["B34"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["D34"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["B35"].Text = func.nome_apelido;
-                                worksheet.Range["B36"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["B37"].DateTime = semana.PrimeiraData.AddDays(3);
-                                worksheet.Range["FUNC1_DATA4"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA4"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA4"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA4"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA4"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["G1"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["I1"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["G2"].Text = func.nome_apelido;
-                                worksheet.Range["G3"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["G4"].DateTime = semana.PrimeiraData.AddDays(4);
-                                worksheet.Range["FUNC1_DATA5"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA5"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA5"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA5"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA5"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["G12"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["I12"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["G13"].Text = func.nome_apelido;
-                                worksheet.Range["G14"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["G15"].DateTime = semana.PrimeiraData.AddDays(5);
-                                worksheet.Range["FUNC1_DATA6"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA6"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA6"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA6"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA6"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["G23"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["I23"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["G24"].Text = func.nome_apelido;
-                                worksheet.Range["G25"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["G26"].DateTime = semana.PrimeiraData.AddDays(6);
-                                worksheet.Range["FUNC1_DATA7"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA7"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA7"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA7"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA7"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["G34"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["I34"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["G35"].Text = func.nome_apelido;
-                                worksheet.Range["G36"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["FUNC1_DATA8"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA8"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA8"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA8"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC1_DATA8"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                Thread.Sleep(3000);
-                                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\FICHA-APONTAMENTO.xlsx");
-                                ficha = "DIREITA";
-
-                                break;
-                            }
-                        case "DIREITA":
-                            {
-                                worksheet.Range["L1"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["N1"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["L2"].Text = func.nome_apelido;
-                                worksheet.Range["L3"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["L4"].DateTime = semana.PrimeiraData;
-                                worksheet.Range["FUNC2_DATA1"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA1"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA1"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA1"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA1"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["L12"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["N12"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["L13"].Text = func.nome_apelido;
-                                worksheet.Range["L14"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["L15"].DateTime = semana.PrimeiraData.AddDays(1);
-                                worksheet.Range["FUNC2_DATA2"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA2"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA2"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA2"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA2"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["L23"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["N23"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["L24"].Text = func.nome_apelido;
-                                worksheet.Range["L25"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["L26"].DateTime = semana.PrimeiraData.AddDays(2);
-                                worksheet.Range["FUNC2_DATA3"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA3"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA3"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA3"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA3"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["L34"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["N34"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["L35"].Text = func.nome_apelido;
-                                worksheet.Range["L36"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["L37"].DateTime = semana.PrimeiraData.AddDays(3);
-                                worksheet.Range["FUNC2_DATA4"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA4"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA4"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA4"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA4"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["Q1"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["S1"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["Q2"].Text = func.nome_apelido;
-                                worksheet.Range["Q3"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["Q4"].DateTime = semana.PrimeiraData.AddDays(4);
-                                worksheet.Range["FUNC2_DATA5"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA5"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA5"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA5"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA5"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["Q12"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["S12"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["Q13"].Text = func.nome_apelido;
-                                worksheet.Range["Q14"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["Q15"].DateTime = semana.PrimeiraData.AddDays(5);
-                                worksheet.Range["FUNC2_DATA6"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA6"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA6"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA6"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA6"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["Q23"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["S23"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["Q24"].Text = func.nome_apelido;
-                                worksheet.Range["Q25"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["Q26"].DateTime = semana.PrimeiraData.AddDays(6);
-                                worksheet.Range["FUNC2_DATA7"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA7"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA7"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA7"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA7"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-                                worksheet.Range["Q34"].Number = Convert.ToDouble(semana.Semana);
-                                worksheet.Range["S34"].Number = Convert.ToDouble(func.codfun);
-                                worksheet.Range["Q35"].Text = func.nome_apelido;
-                                worksheet.Range["Q36"].Text = $"{func.setor} {(func.sub_setor == func.setor ? null : func.sub_setor)}";
-                                worksheet.Range["FUNC2_DATA8"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA8"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA8"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA8"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.Thin;
-                                worksheet.Range["FUNC2_DATA8"].CellStyle.Font.Color = ExcelKnownColors.Black;
-
-
-                                workbook.SaveAs(@$"{BaseSettings.CaminhoSistema}\Impressos\FICHA-APONTAMENTO.xlsx");
-
-                                print++;
-                                ficha = "ESQUERDA";
-
-                                Process.Start(
-                                    new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\FICHA-APONTAMENTO.xlsx")
-                                    {
-                                        Verb = "Print",
-                                        UseShellExecute = true,
-                                    });
-
-                                Thread.Sleep(3000);
-
-                                worksheet.Range["FUNC2_DATA1"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA1"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA1"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA1"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA1"].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                                worksheet.Range["FUNC2_DATA2"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA2"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA2"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA2"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA2"].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                                worksheet.Range["FUNC2_DATA3"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA3"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA3"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA3"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA3"].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                                worksheet.Range["FUNC2_DATA4"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA4"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA4"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA4"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA4"].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                                worksheet.Range["FUNC2_DATA5"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA5"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA5"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA5"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA5"].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                                worksheet.Range["FUNC2_DATA6"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA6"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA6"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA6"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA6"].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                                worksheet.Range["FUNC2_DATA7"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA7"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA7"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA7"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA7"].CellStyle.Font.Color = ExcelKnownColors.White;
-
-                                worksheet.Range["FUNC2_DATA8"].Borders[ExcelBordersIndex.EdgeLeft].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA8"].Borders[ExcelBordersIndex.EdgeRight].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA8"].Borders[ExcelBordersIndex.EdgeTop].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA8"].Borders[ExcelBordersIndex.EdgeBottom].LineStyle = ExcelLineStyle.None;
-                                worksheet.Range["FUNC2_DATA8"].CellStyle.Font.Color = ExcelKnownColors.White;
-
-
-                                break;
-                            }
+                        PreencherFicha(workbook, worksheet, semanaSelecionada, funcionarios[index + 1], FichaLado.Direita);
                     }
 
-                    if (TotFunc == 1 && ficha == "DIREITA")
-                    {
-                        Process.Start(
-                            new ProcessStartInfo(@$"{BaseSettings.CaminhoSistema}\Impressos\FICHA-APONTAMENTO.xlsx")
-                            {
-                                Verb = "Print",
-                                UseShellExecute = true,
-                            });
-                        Thread.Sleep(3000);
-                    }
-                    TotFunc--;
+                    workbook.SaveAs(arquivoPath);
 
+                    Process.Start(new ProcessStartInfo(arquivoPath)
+                    {
+                        Verb = "Print",
+                        UseShellExecute = true,
+                    });
+
+                    Thread.Sleep(3000);
                 }
-
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            
-
         }
+
+        private static void PreencherFicha(IXLWorkbook workbook, IXLWorksheet worksheet, DataSemanaModel semana, FuncionarioModel funcionario, FichaLado lado)
+        {
+            foreach (var linha in ObterLinhasFicha(lado))
+            {
+                worksheet.Cell(linha.SemanaCell).Value = semana.Semana;
+                worksheet.Cell(linha.FuncionarioCell).Value = funcionario.codfun ?? 0;
+                worksheet.Cell(linha.NomeCell).Value = funcionario.nome_apelido ?? string.Empty;
+                worksheet.Cell(linha.SetorCell).Value = FormatarSetor(funcionario);
+
+                if (linha.DiaSemana.HasValue && linha.DataCell != null)
+                {
+                    worksheet.Cell(linha.DataCell).Value = semana.PrimeiraData.AddDays(linha.DiaSemana.Value);
+                }
+
+                AplicarBordaData(workbook, worksheet, linha.RangeData);
+            }
+        }
+
+        private static string FormatarSetor(FuncionarioModel funcionario)
+        {
+            if (string.Equals(funcionario.sub_setor, funcionario.setor, StringComparison.OrdinalIgnoreCase))
+            {
+                return funcionario.setor ?? string.Empty;
+            }
+
+            return $"{funcionario.setor} {funcionario.sub_setor}".Trim();
+        }
+
+        private static IEnumerable<LinhaFicha> ObterLinhasFicha(FichaLado lado)
+        {
+            return lado == FichaLado.Esquerda
+                ? new[]
+                {
+                    new LinhaFicha("B1", "D1", "B2", "B3", "B4", "FUNC1_DATA1", 0),
+                    new LinhaFicha("B12", "D12", "B13", "B14", "B15", "FUNC1_DATA2", 1),
+                    new LinhaFicha("B23", "D23", "B24", "B25", "B26", "FUNC1_DATA3", 2),
+                    new LinhaFicha("B34", "D34", "B35", "B36", "B37", "FUNC1_DATA4", 3),
+                    new LinhaFicha("G1", "I1", "G2", "G3", "G4", "FUNC1_DATA5", 4),
+                    new LinhaFicha("G12", "I12", "G13", "G14", "G15", "FUNC1_DATA6", 5),
+                    new LinhaFicha("G23", "I23", "G24", "G25", "G26", "FUNC1_DATA7", 6),
+                    new LinhaFicha("G34", "I34", "G35", "G36", null, "FUNC1_DATA8", null),
+                }
+                : new[]
+                {
+                    new LinhaFicha("L1", "N1", "L2", "L3", "L4", "FUNC2_DATA1", 0),
+                    new LinhaFicha("L12", "N12", "L13", "L14", "L15", "FUNC2_DATA2", 1),
+                    new LinhaFicha("L23", "N23", "L24", "L25", "L26", "FUNC2_DATA3", 2),
+                    new LinhaFicha("L34", "N34", "L35", "L36", "L37", "FUNC2_DATA4", 3),
+                    new LinhaFicha("Q1", "S1", "Q2", "Q3", "Q4", "FUNC2_DATA5", 4),
+                    new LinhaFicha("Q12", "S12", "Q13", "Q14", "Q15", "FUNC2_DATA6", 5),
+                    new LinhaFicha("Q23", "S23", "Q24", "Q25", "Q26", "FUNC2_DATA7", 6),
+                    new LinhaFicha("Q34", "S34", "Q35", "Q36", null, "FUNC2_DATA8", null),
+                };
+        }
+
+        private static void AplicarBordaData(IXLWorkbook workbook, IXLWorksheet worksheet, string rangeName)
+        {
+            var range = ObterRangeNomeado(workbook, worksheet, rangeName);
+
+            if (range == null)
+            {
+                return;
+            }
+
+            range.Style.Border.LeftBorder = XLBorderStyleValues.Thin;
+            range.Style.Border.RightBorder = XLBorderStyleValues.Thin;
+            range.Style.Border.TopBorder = XLBorderStyleValues.Thin;
+            range.Style.Border.BottomBorder = XLBorderStyleValues.Thin;
+            range.Style.Font.FontColor = XLColor.Black;
+        }
+
+        private static IXLRange? ObterRangeNomeado(IXLWorkbook workbook, IXLWorksheet worksheet, string rangeName)
+        {
+            try
+            {
+                return workbook.DefinedName(rangeName)?.Ranges.FirstOrDefault() as IXLRange;
+            }
+            catch
+            {
+                // Mantém compatibilidade com modelos antigos que podem ter ranges definidos no escopo da planilha.
+            }
+
+            try
+            {
+                return worksheet.DefinedName(rangeName)?.Ranges.FirstOrDefault() as IXLRange;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private enum FichaLado
+        {
+            Esquerda,
+            Direita
+        }
+
+        private sealed record LinhaFicha(
+            string SemanaCell,
+            string FuncionarioCell,
+            string NomeCell,
+            string SetorCell,
+            string? DataCell,
+            string RangeData,
+            int? DiaSemana);
     }
 
     public class ImprimirFichaViewModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public void RaisePropertyChanged(string propName)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
 
-        private ObservableCollection<FuncionarioModel> _funcionarios;
-        public ObservableCollection<FuncionarioModel> Funcionarios
+        private ObservableCollection<FuncionarioModel>? _funcionarios;
+        public ObservableCollection<FuncionarioModel>? Funcionarios
         {
             get { return _funcionarios; }
-            set { _funcionarios = value; RaisePropertyChanged("Funcionarios"); }
+            set { _funcionarios = value; RaisePropertyChanged(nameof(Funcionarios)); }
         }
 
-        private FuncionarioModel _funcionario;
-        public FuncionarioModel Funcionario
+        private FuncionarioModel? _funcionario;
+        public FuncionarioModel? Funcionario
         {
             get { return _funcionario; }
-            set { _funcionario = value; RaisePropertyChanged("Funcionario"); }
+            set { _funcionario = value; RaisePropertyChanged(nameof(Funcionario)); }
         }
 
-        private ObservableCollection<DataSemanaModel> _semanas;
-        public ObservableCollection<DataSemanaModel> Semanas
+        private ObservableCollection<DataSemanaModel>? _semanas;
+        public ObservableCollection<DataSemanaModel>? Semanas
         {
             get { return _semanas; }
-            set { _semanas = value; RaisePropertyChanged("Semanas"); }
+            set { _semanas = value; RaisePropertyChanged(nameof(Semanas)); }
         }
 
-        private DataSemanaModel _semana;
-        public DataSemanaModel Semana
+        private DataSemanaModel? _semanaSelecionada;
+        public DataSemanaModel? SemanaSelecionada
         {
-            get { return _semana; }
-            set { _semana = value; RaisePropertyChanged("Semana"); }
+            get { return _semanaSelecionada; }
+            set { _semanaSelecionada = value; RaisePropertyChanged(nameof(SemanaSelecionada)); }
         }
 
         public async Task<ObservableCollection<FuncionarioModel>> GetFuncionariosAsync()
         {
-            try
-            {
-                DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-                using DatabaseContext db = new();
-                var data = await db.Funcionarios
-                    .OrderBy(f => f.sub_setor)
-                    .ThenBy(f => f.setor)
-                    .ThenBy(f => f.nome_apelido)
-                    .Where(f => f.data_demissao == null && f.ativo.Contains("1"))
-                    .ToListAsync();
-                return new ObservableCollection<FuncionarioModel>(data);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            using var db = DbConnectionFactory.Create();
+            var data = await db.QueryAsync<FuncionarioModel>(
+                @"SELECT *
+                  FROM ht.funcionarios
+                  WHERE data_demissao IS NULL
+                    AND ativo IS NOT NULL
+                    AND ativo LIKE '%1%'
+                  ORDER BY sub_setor, setor, nome_apelido;");
+
+            return new ObservableCollection<FuncionarioModel>(data);
         }
 
         public async Task<ObservableCollection<DataSemanaModel>> GetSemanasAsync()
         {
-            try
-            {
-                DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-                using DatabaseContext db = new();
-                var data = await db.DataPlanejamentos
-                    .GroupBy(dp => dp.semana)
-                    .Select(grupo => new DataSemanaModel
-                    {
-                        Semana = (int)grupo.Key,
-                        PrimeiraData = (DateTime)grupo.Min(dp => dp.data),
-                        UltimaData = (DateTime)grupo.Max(dp => dp.data)
-                    })
-                    .OrderByDescending(resultado => resultado.Semana)
-                    .ToListAsync();
-                return new ObservableCollection<DataSemanaModel>(data);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            using var db = DbConnectionFactory.Create();
+            var data = await db.QueryAsync<DataSemanaModel>(
+                @"SELECT
+                    semana::int AS Semana,
+                    MIN(data)::timestamp AS PrimeiraData,
+                    MAX(data)::timestamp AS UltimaData
+                  FROM ht.t_data_planejamento
+                  GROUP BY semana
+                  ORDER BY semana DESC;");
+
+            return new ObservableCollection<DataSemanaModel>(data);
         }
     }
 }

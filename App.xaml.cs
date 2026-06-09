@@ -1,4 +1,5 @@
 ﻿using Apontamento.DataBase;
+using Apontamento.Localization;
 using BibliotecasSIG;
 using System;
 using System.Diagnostics;
@@ -7,6 +8,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using Telerik.Windows.Controls;
 
 namespace Apontamento
 {
@@ -14,24 +16,16 @@ namespace Apontamento
     public partial class App : Application
     {
 
-        private const string UPDATE_URL = "http://192.168.0.49/downloads/apontamento/version.json";
         private readonly string CURRENT_VERSION = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public App()
         {
-            // Add your Syncfusion license key for WPF platform with corresponding Syncfusion NuGet version referred in project. For more information about license key see https://help.syncfusion.com/common/essential-studio/licensing/license-key.
-            // Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Add your license key here"); 
-
-            //Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("NzI0OUAzMjMzMkUzMTJFMzljWE9mZml0ZnFGQ2xaaUFSUXBGeVdweDhiOCtBbUlDSWptZEgyVTYrcU1ZPQ==");
-            //Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MjM5MkAzMjM0MkUzMTJFMzlZRnNmeEdKa0haRGU0S0MyZUR3b05vcDJFNURBbnFRTi9STUVidExydWswPQ==");
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MTU4NUAzMjM3MkUzMTJFMzluT08wbzRnYm4zUlFDOVRzWVpYbUtuSEl0aUhTZmNMYjQxekhrV0NVRnlzPQ==");
-
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            DapperTypeHandlers.Configure();
+            LocalizationManager.Manager = new SigTelerikLocalizationManager();
+            StyleManager.ApplicationTheme = new Windows11Theme();
             DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-            BaseSettings.Database = DateTime.Now.Year.ToString();
-            BaseSettings.Host = "192.168.0.23";
-            BaseSettings.Username = Environment.UserName;
-            BaseSettings.Password = "123mudar";
-            BaseSettings.ConnectionString = $"Host={BaseSettings.Host};Database={BaseSettings.Database};Username={BaseSettings.Username};Password={BaseSettings.Password}";
+            BaseSettings.LoadFromConfiguration();
 
         }
 
@@ -45,7 +39,12 @@ namespace Apontamento
         {
             try
             {
-                var updateChecker = new UpdateChecker(UPDATE_URL, CURRENT_VERSION);
+                var updateInfoUrl = DataBaseSettings.Instance.UpdateInfoUrl;
+
+                if (string.IsNullOrWhiteSpace(updateInfoUrl))
+                    return;
+
+                var updateChecker = new UpdateChecker(updateInfoUrl, CURRENT_VERSION);
                 var updateInfo = await updateChecker.CheckForUpdatesAsync();
 
                 var updateInfoJson = JsonSerializer.Serialize<UpdateInfo>(updateInfo);
@@ -105,3 +104,5 @@ namespace Apontamento
         }
     }
 }
+
+

@@ -1,11 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Apontamento.DataBase.Model
-{
-    [Keyless]
-    [Table("funcionarios_ativos_geral", Schema = "ht")]
+{    [Table("funcionarios_ativos_geral", Schema = "ht")]
     public class FuncionarioAtivoModel
     {
         public long? codfun { get; set; }
@@ -40,3 +37,4 @@ namespace Apontamento.DataBase.Model
         public string? barcode { get; set; }
     }
 }
+

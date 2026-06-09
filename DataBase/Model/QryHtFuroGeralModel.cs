@@ -1,11 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Apontamento.DataBase.Model
-{
-    [Keyless]
-    [Table("qry_ht_furo_geral", Schema = "ht")]
+{    [Table("qry_ht_furo_geral", Schema = "ht")]
     public class QryHtFuroGeralModel
     {
         public long? codfun { get; set; }
@@ -18,3 +15,4 @@ namespace Apontamento.DataBase.Model
         public string? local_galpao { get; set; }
     }
 }
+

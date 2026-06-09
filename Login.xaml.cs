@@ -1,18 +1,18 @@
-﻿using Apontamento.DataBase;
+using Apontamento.DataBase;
 using System;
 using System.Configuration;
 using System.DirectoryServices.AccountManagement;
 using System.Windows;
 using Telerik.Windows.Controls;
 
-namespace Producao
+namespace Apontamento
 {
     /// <summary>
     /// Interação lógica para Login.xam
     /// </summary>
     public partial class Login : RadWindow
     {
-        DataBaseSettings BaseSettings = DataBaseSettings.Instance;
+        private readonly DataBaseSettings BaseSettings = DataBaseSettings.Instance;
 
         public Login()
         {
@@ -20,42 +20,45 @@ namespace Producao
             txtLogin.Focus();
         }
 
-        private void OnSair(object sender, System.Windows.RoutedEventArgs e)
+        private void OnSair(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = false;
-            this.Close();
+            DialogResult = false;
+            Close();
         }
 
-        private void OnLogar(object sender, System.Windows.RoutedEventArgs e)
+        private void OnLogar(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(txtLogin.Text) || string.IsNullOrWhiteSpace(txtSenha.Password))
+                return;
 
-            if (!string.IsNullOrWhiteSpace(txtLogin.Text) && !string.IsNullOrWhiteSpace(txtSenha.Password))
+            try
             {
-                try
-                {
-                    // ContextType.Domain já usa seu domínio padrão ou especifique "cipodominio.com.br"
-                    using var ctx = new PrincipalContext(
-                           ContextType.Domain,
-                           "cipodominio.com.br");
-                    if (!ctx.ValidateCredentials(txtLogin.Text, txtSenha.Password))
-                        throw new Exception("Credenciais inválidas.");
+                using var ctx = new PrincipalContext(
+                    ContextType.Domain,
+                    "192.168.0.254",
+                    "cipodominio.com.br");
 
-                    // Atualiza config e fecha
-                    var config = ConfigurationManager.OpenExeConfiguration(@$"{BaseSettings.CaminhoSistema}Apontamento.dll");
+                if (!ctx.ValidateCredentials(txtLogin.Text, txtSenha.Password))
+                    throw new Exception("Credenciais inválidas.");
+
+                Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                if (config.AppSettings.Settings["Username"] == null)
+                    config.AppSettings.Settings.Add("Username", txtLogin.Text);
+                else
                     config.AppSettings.Settings["Username"].Value = txtLogin.Text;
-                    config.Save(ConfigurationSaveMode.Modified);
-                    ConfigurationManager.RefreshSection("appSettings");
 
-                    BaseSettings.Username = txtLogin.Text;
-                    BaseSettings.ConnectionString = $"Host={BaseSettings.Host};Database={BaseSettings.Database};Username={BaseSettings.Username};Password={BaseSettings.Password}";
+                config.Save(ConfigurationSaveMode.Modified);
+                ConfigurationManager.RefreshSection("appSettings");
 
-                    this.DialogResult = true;
-                    this.Close();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Falha na autenticação: {ex.Message}");
-                }
+                BaseSettings.Username = txtLogin.Text;
+                BaseSettings.RefreshConnectionString();
+
+                DialogResult = true;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Falha na autenticação: {ex.Message}");
             }
         }
     }

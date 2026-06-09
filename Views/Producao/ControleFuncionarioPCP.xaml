@@ -1,68 +1,60 @@
-﻿<UserControl x:Class="Apontamento.Views.Producao.ControleFuncionarioPCP"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Apontamento.Views.Producao" 
-             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
-             xmlns:converter="clr-namespace:Apontamento.Views.Converters"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800" Loaded="UserControl_Loaded">
+<UserControl
+    x:Class="Apontamento.Views.Producao.ControleFuncionarioPCP"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converter="clr-namespace:Apontamento.Views.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    Loaded="UserControl_Loaded"
+    mc:Ignorable="d">
 
     <UserControl.Resources>
-        <converter:ConverterNumber x:Key="ConverterNumber"/>
-        <converter:ConverterBoolen x:Key="ConverterBoolen"/>
+        <converter:ConverterBoolen x:Key="ConverterBoolen" />
     </UserControl.Resources>
-    
+
     <Grid>
-
-        <syncfusion:SfDataGrid 
-            AutoGenerateColumns="False" 
-            AllowResizingColumns="True"
-            AllowDraggingColumns="True"
-            AllowFiltering="True"
-            ShowRowHeader="True" 
-            ItemsSource="{Binding Funcionarios}" 
+        <telerik:RadGridView
+            Margin="0,0,6,0"
+            AutoGenerateColumns="False"
+            CanUserDeleteRows="False"
+            CanUserFreezeColumns="False"
+            CanUserInsertRows="False"
+            CanUserReorderColumns="True"
+            CellEditEnded="OnCellEditEnded"
+            IsFilteringAllowed="True"
+            ItemsSource="{Binding Funcionarios}"
+            RowIndicatorVisibility="Visible"
             SelectedItem="{Binding Funcionario, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            RowValidating="OnRowValidating" 
-            Margin="0,0,6,0" 
-            CurrentCellValueChanged="SfDataGrid_CurrentCellValueChanged"
-            SelectionUnit="Row"
             SelectionMode="Extended"
-            GridCopyOption="CopyData,IncludeHeaders">
+            SelectionUnit="FullRow"
+            ShowGroupPanel="False">
 
-            <syncfusion:SfDataGrid.Columns>
-                <syncfusion:GridNumericColumn 
-                    MappingName="codfun" 
-                    DisplayBinding="{Binding codfun, Converter={StaticResource ConverterNumber}}" 
-                    ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="nome_apelido" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="apelido" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="setor" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="sub_setor" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="funcao" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="empresa" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridCheckBoxColumn 
-                    MappingName="ativo"
-                    DisplayBinding="{Binding ativo, Converter={StaticResource ConverterBoolen}}"
-                    ValueBinding="{Binding ativo, Converter={StaticResource ConverterBoolen}}" 
-                    ColumnSizer="SizeToHeader"
-                    AllowEditing="True"/>
-                <syncfusion:GridCheckBoxColumn
-                    MappingName="exibir_furo"
-                    DisplayBinding="{Binding exibir_furo, Converter={StaticResource ConverterBoolen}}"
-                    ValueBinding="{Binding exibir_furo, Converter={StaticResource ConverterBoolen}}"
-                    ColumnSizer="SizeToHeader" 
-                    AllowEditing="True"/>
-                <syncfusion:GridTextColumn MappingName="cidade" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridTextColumn MappingName="local" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridDateTimeColumn MappingName="data_admissao" ColumnSizer="SizeToCells"/>
-                <syncfusion:GridDateTimeColumn MappingName="data_demissao" ColumnSizer="SizeToCells"/>
-            </syncfusion:SfDataGrid.Columns>
-
-        </syncfusion:SfDataGrid>
-
-
+            <telerik:RadGridView.Columns>
+                <telerik:GridViewDataColumn Header="codfun" IsReadOnly="True" DataMemberBinding="{Binding codfun}" />
+                <telerik:GridViewDataColumn Header="nome_apelido" IsReadOnly="True" DataMemberBinding="{Binding nome_apelido}" />
+                <telerik:GridViewDataColumn Header="apelido" IsReadOnly="True" DataMemberBinding="{Binding apelido}" />
+                <telerik:GridViewDataColumn Header="setor" IsReadOnly="True" DataMemberBinding="{Binding setor}" />
+                <telerik:GridViewDataColumn Header="sub_setor" IsReadOnly="True" DataMemberBinding="{Binding sub_setor}" />
+                <telerik:GridViewDataColumn Header="funcao" IsReadOnly="True" DataMemberBinding="{Binding funcao}" />
+                <telerik:GridViewDataColumn Header="empresa" IsReadOnly="True" DataMemberBinding="{Binding empresa}" />
+                <telerik:GridViewCheckBoxColumn
+                    Header="ativo"
+                    UniqueName="ativo"
+                    AutoSelectOnEdit="True"
+                    DataMemberBinding="{Binding ativo, Converter={StaticResource ConverterBoolen}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <telerik:GridViewCheckBoxColumn
+                    Header="exibir_furo"
+                    UniqueName="exibir_furo"
+                    AutoSelectOnEdit="True"
+                    DataMemberBinding="{Binding exibir_furo, Converter={StaticResource ConverterBoolen}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <telerik:GridViewDataColumn Header="cidade" IsReadOnly="True" DataMemberBinding="{Binding cidade}" />
+                <telerik:GridViewDataColumn Header="local" IsReadOnly="True" DataMemberBinding="{Binding local}" />
+                <telerik:GridViewDataColumn Header="data_admissao" IsReadOnly="True" DataMemberBinding="{Binding data_admissao}" DataFormatString="{}{0:dd/MM/yyyy}" />
+                <telerik:GridViewDataColumn Header="data_demissao" IsReadOnly="True" DataMemberBinding="{Binding data_demissao}" DataFormatString="{}{0:dd/MM/yyyy}" />
+            </telerik:RadGridView.Columns>
+        </telerik:RadGridView>
     </Grid>
-    
 </UserControl>

@@ -1,11 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Apontamento.DataBase.Model
-{
-    [Keyless]
-    [Table("qryfurohtprojetos", Schema = "ht")]
+{    [Table("qryfurohtprojetos", Schema = "ht")]
     public class QryFuroApontamentoProjeto
     {
         public long? codfun { get; set; }
@@ -22,3 +19,4 @@ namespace Apontamento.DataBase.Model
         public double? hora_trabalhada { get; set; }
     }
 }
+

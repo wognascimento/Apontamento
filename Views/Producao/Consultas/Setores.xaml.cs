@@ -1,24 +1,15 @@
-﻿using Apontamento.DataBase;
+using Apontamento.DataBase;
 using Apontamento.DataBase.Model;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using Syncfusion.UI.Xaml.Grid;
+using Dapper;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Telerik.Windows.Controls;
 
 namespace Apontamento.Views.Producao.Consultas
 {
@@ -49,29 +40,18 @@ namespace Apontamento.Views.Producao.Consultas
             }
         }
 
-        private void OnRowValidating(object sender, Syncfusion.UI.Xaml.Grid.RowValidatingEventArgs e)
+        private async void OnCellEditEnded(object sender, GridViewCellEditEndedEventArgs e)
         {
+            if (e.Cell?.Column?.UniqueName != "inativo")
+                return;
 
-        }
-
-        private async void OnCurrentCellValueChanged(object sender, Syncfusion.UI.Xaml.Grid.CurrentCellValueChangedEventArgs e)
-        {
-            SetorModel? dado = e.Record as SetorModel;
-            SetoresViewModel vm = (SetoresViewModel)DataContext;
-
-            SfDataGrid? grid = sender as SfDataGrid;
-            int columnindex = grid.ResolveToGridVisibleColumnIndex(e.RowColumnIndex.ColumnIndex);
-            var column = grid.Columns[columnindex];
-            var rowIndex = grid.ResolveToRecordIndex(e.RowColumnIndex.RowIndex);
+            if (e.Cell.DataContext is not SetorModel setor)
+                return;
 
             try
             {
-                if (column.GetType() == typeof(GridCheckBoxColumn) && column.MappingName == "inativo")
-                {
-                    vm.Setor = await Task.Run(() => vm.AtivarSetorAsync(dado));
-                }
-
-
+                SetoresViewModel vm = (SetoresViewModel)DataContext;
+                vm.Setor = await vm.AtivarSetorAsync(setor);
             }
             catch (Exception ex)
             {
@@ -82,56 +62,43 @@ namespace Apontamento.Views.Producao.Consultas
 
     public class SetoresViewModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void RaisePropertyChanged(string propName)
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
-        }
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        private ObservableCollection<SetorModel> _setores;
+        private ObservableCollection<SetorModel> _setores = new();
         public ObservableCollection<SetorModel> Setores
         {
             get { return _setores; }
-            set { _setores = value; RaisePropertyChanged("Setores"); }
+            set { _setores = value; RaisePropertyChanged(nameof(Setores)); }
         }
 
-        private SetorModel _setor;
-        public SetorModel Setor
+        private SetorModel? _setor;
+        public SetorModel? Setor
         {
             get { return _setor; }
-            set { _setor = value; RaisePropertyChanged("Setor"); }
+            set { _setor = value; RaisePropertyChanged(nameof(Setor)); }
         }
 
         public async Task<ObservableCollection<SetorModel>> GetSetoresAsync()
         {
-            try
-            {
-                DataBaseSettings BaseSettings = DataBaseSettings.Instance;
-                using DatabaseContext db = new();
-                var data = await db.Setores
-                    .OrderBy(f => f.setor)
-                    .ToListAsync();
-                return new ObservableCollection<SetorModel>(data);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            using var db = DbConnectionFactory.Create();
+            var data = await db.QueryAsync<SetorModel>(
+                @"SELECT * FROM producao.tbl_setor ORDER BY setor;");
+
+            return new ObservableCollection<SetorModel>(data);
         }
 
         public async Task<SetorModel> AtivarSetorAsync(SetorModel setor)
         {
-            try
-            {
-                using DatabaseContext db = new();
-                db.Entry(setor).Property(p => p.inativo).IsModified = true;
-                await db.SaveChangesAsync();
-                return setor;
-            }
-            catch (NpgsqlException)
-            {
-                throw;
-            }
+            using var db = DbConnectionFactory.Create();
+            await db.ExecuteAsync(
+                @"UPDATE producao.tbl_setor
+                  SET inativo = @inativo
+                  WHERE codigo_setor = @codigo_setor;",
+                setor);
+            return setor;
         }
+
+        private void RaisePropertyChanged(string propName)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
     }
 }
