@@ -85,6 +85,7 @@ namespace Apontamento.Views.Producao
                 return;
 
             ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
+            var isNewRow = !data.cod.HasValue;
             try
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
@@ -92,6 +93,9 @@ namespace Apontamento.Views.Producao
                 data.cod = vm.Ht.cod;
                 DGDigitacao.Rebind();
                 vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm.Funcionario?.codfun));
+                if (isNewRow)
+                    PosicionarNaLinhaDeAdicao();
+
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
             catch (Exception ex)
@@ -103,6 +107,40 @@ namespace Apontamento.Views.Producao
                 foreach (var item in toRemove)
                     vm.Hts.Remove(item);
             }
+        }
+
+        private void DGDigitacao_RowValidating(object sender, GridViewRowValidatingEventArgs e)
+        {
+            if (e.Row.Item is not HtModel rowData)
+                return;
+
+            if (!rowData.num_os.HasValue)
+            {
+                AplicarErroLinha(e, "Informe o número da O.S.", "num_os");
+            }
+            else if (!rowData.quantidadehorastrabalhadas.HasValue)
+            {
+                AplicarErroLinha(e, "Informe a quantidade de horas trabalhada.", "quantidadehorastrabalhadas");
+            }
+        }
+
+        private static void AplicarErroLinha(GridViewRowValidatingEventArgs e, string mensagem, string propertyName)
+        {
+            e.IsValid = false;
+            e.ValidationResults.Add(new GridViewCellValidationResult
+            {
+                ErrorMessage = mensagem,
+                PropertyName = propertyName
+            });
+        }
+
+        private void PosicionarNaLinhaDeAdicao()
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                DGDigitacao.Focus();
+                DGDigitacao.BeginInsert();
+            }));
         }
 
         private async void OnFuncionariosSelectionChanged(object sender, SelectionChangedEventArgs e)

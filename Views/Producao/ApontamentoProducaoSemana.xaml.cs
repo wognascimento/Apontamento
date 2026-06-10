@@ -138,6 +138,7 @@ namespace Apontamento.Views.Producao
                 return;
 
             ApontamentoProducaoSemanaViewModel vm = (ApontamentoProducaoSemanaViewModel)DataContext;
+            var isNewRow = !ht.cod.HasValue;
             try
             {
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = Cursors.Wait; });
@@ -148,6 +149,9 @@ namespace Apontamento.Views.Producao
                 vm.FutoHts = await Task.Run(() => vm.GetFuroHtsAsync(vm.Semana));
                 ht.cod = vm.Ht.cod;
                 DGDigitacao.Rebind();
+                if (isNewRow)
+                    PosicionarNaLinhaDeAdicao();
+
                 Application.Current.Dispatcher.Invoke(() => { Mouse.OverrideCursor = null; });
             }
             catch (Exception ex)
@@ -159,6 +163,15 @@ namespace Apontamento.Views.Producao
                 foreach (var item in toRemove)
                     vm.Hts.Remove(item);
             }
+        }
+
+        private void PosicionarNaLinhaDeAdicao()
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                DGDigitacao.Focus();
+                DGDigitacao.BeginInsert();
+            }));
         }
 
         private void DGDigitacao_PreviewKeyDown(object sender, KeyEventArgs e)

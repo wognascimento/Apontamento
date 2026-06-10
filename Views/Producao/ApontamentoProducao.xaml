@@ -72,6 +72,7 @@
                 NewRowPosition="Bottom"
                 RowIndicatorVisibility="Visible"
                 RowValidated="DGDigitacao_RowValidated"
+                RowValidating="DGDigitacao_RowValidating"
                 SelectedItem="{Binding Ht, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 ShowGroupPanel="False">
 
