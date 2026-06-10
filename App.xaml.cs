@@ -3,11 +3,14 @@ using Apontamento.Localization;
 using BibliotecasSIG;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Markup;
 using Telerik.Windows.Controls;
 
 namespace Apontamento
@@ -21,12 +24,27 @@ namespace Apontamento
         public App()
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            ConfigureCulture();
             DapperTypeHandlers.Configure();
             LocalizationManager.Manager = new SigTelerikLocalizationManager();
             StyleManager.ApplicationTheme = new Windows11Theme();
             DataBaseSettings BaseSettings = DataBaseSettings.Instance;
             BaseSettings.LoadFromConfiguration();
 
+        }
+
+        private static void ConfigureCulture()
+        {
+            var culture = new CultureInfo("pt-BR");
+
+            CultureInfo.DefaultThreadCurrentCulture = culture;
+            CultureInfo.DefaultThreadCurrentUICulture = culture;
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
+
+            FrameworkElement.LanguageProperty.OverrideMetadata(
+                typeof(FrameworkElement),
+                new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(culture.IetfLanguageTag)));
         }
 
         protected override async void OnStartup(StartupEventArgs e)

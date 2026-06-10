@@ -60,9 +60,9 @@
                         ItemsSource="{Binding DataContext.Funcionarios, RelativeSource={RelativeSource AncestorType=telerik:RadGridView}}"
                         SelectedValueMemberPath="codfun" />
                     <telerik:GridViewDataColumn Header="DATA" DataMemberBinding="{Binding data}" DataFormatString="{}{0:dd/MM/yyyy}" />
-                    <telerik:GridViewDataColumn Header="OS" DataMemberBinding="{Binding num_os}" DataFormatString="{}{0:N0}" />
+                    <telerik:GridViewDataColumn Header="OS" DataMemberBinding="{Binding num_os}" DataFormatString="{}{0:F0}" />
                     <telerik:GridViewDataColumn Header="HT" DataMemberBinding="{Binding quantidadehorastrabalhadas}" DataFormatString="{}{0:N2}" />
-                    <telerik:GridViewDataColumn Header="COD" IsReadOnly="True" DataMemberBinding="{Binding cod}" DataFormatString="{}{0:N0}" />
+                    <telerik:GridViewDataColumn Header="COD" IsReadOnly="True" DataMemberBinding="{Binding cod}" DataFormatString="{}{0:F0}" />
                 </telerik:RadGridView.Columns>
             </telerik:RadGridView>
 

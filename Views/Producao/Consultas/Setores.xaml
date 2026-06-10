@@ -34,7 +34,8 @@
                 <telerik:GridViewDataColumn
                     Header="codigo_setor"
                     IsReadOnly="True"
-                    DataMemberBinding="{Binding codigo_setor}" />
+                    DataMemberBinding="{Binding codigo_setor}" 
+                    DataFormatString="{}{0:F0}"/>
                 <telerik:GridViewDataColumn
                     Header="setor"
                     IsReadOnly="True"

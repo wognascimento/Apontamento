@@ -77,7 +77,7 @@
             Margin="0,0,6,0">
 
             <telerik:RadGridView.Columns>
-                <telerik:GridViewDataColumn DataMemberBinding="{Binding codfun}" Header="codfun" Width="Auto"/>
+                <telerik:GridViewDataColumn DataMemberBinding="{Binding codfun}" Header="codfun" Width="Auto" DataFormatString="{}{0:F0}"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding setor}" Header="setor" Width="Auto"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding sub_setor}" Header="sub_setor" Width="Auto"/>
                 <telerik:GridViewDataColumn DataMemberBinding="{Binding nome_apelido}" Header="nome_apelido" Width="Auto"/>

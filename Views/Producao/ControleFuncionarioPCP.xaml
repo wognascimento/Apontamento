@@ -33,7 +33,7 @@
             ShowGroupPanel="False">
 
             <telerik:RadGridView.Columns>
-                <telerik:GridViewDataColumn Header="codfun" IsReadOnly="True" DataMemberBinding="{Binding codfun}" />
+                <telerik:GridViewDataColumn Header="codfun" IsReadOnly="True" DataMemberBinding="{Binding codfun}" DataFormatString="{}{0:F0}"/>
                 <telerik:GridViewDataColumn Header="nome_apelido" IsReadOnly="True" DataMemberBinding="{Binding nome_apelido}" />
                 <telerik:GridViewDataColumn Header="apelido" IsReadOnly="True" DataMemberBinding="{Binding apelido}" />
                 <telerik:GridViewDataColumn Header="setor" IsReadOnly="True" DataMemberBinding="{Binding setor}" />
