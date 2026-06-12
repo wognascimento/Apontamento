@@ -94,6 +94,9 @@ namespace Apontamento.Views.Producao
             if (e.Row.Item is not HtModel rowData)
                 return;
 
+            if (LinhaNovaVazia(rowData))
+                return;
+
             if (!rowData.semana.HasValue)
             {
                 AplicarErroLinha(e, "Semana não identificada.", "codfun");
@@ -138,6 +141,12 @@ namespace Apontamento.Views.Producao
                 return;
 
             ApontamentoProducaoSemanaViewModel vm = (ApontamentoProducaoSemanaViewModel)DataContext;
+            if (LinhaNovaVazia(ht))
+            {
+                RemoverLinhaNovaVazia(vm, ht);
+                return;
+            }
+
             var isNewRow = !ht.cod.HasValue;
             try
             {
@@ -172,6 +181,30 @@ namespace Apontamento.Views.Producao
                 DGDigitacao.Focus();
                 DGDigitacao.BeginInsert();
             }));
+        }
+
+        private static bool LinhaNovaVazia(HtModel data)
+        {
+            return !data.cod.HasValue &&
+                   !data.codfun.HasValue &&
+                   !data.data.HasValue &&
+                   !data.num_os.HasValue &&
+                   !data.tarefas.HasValue &&
+                   !data.quantidadehorastrabalhadas.HasValue &&
+                   !data.quantidadeunidadeproduzida.HasValue &&
+                   string.IsNullOrWhiteSpace(data.barcode) &&
+                   string.IsNullOrWhiteSpace(data.obs) &&
+                   !data.tbl_servicos_num_os.HasValue &&
+                   !data.apontamnetos_num_os.HasValue;
+        }
+
+        private void RemoverLinhaNovaVazia(ApontamentoProducaoSemanaViewModel vm, HtModel data)
+        {
+            if (vm.Hts.Contains(data))
+            {
+                vm.Hts.Remove(data);
+                DGDigitacao.Rebind();
+            }
         }
 
         private void DGDigitacao_PreviewKeyDown(object sender, KeyEventArgs e)

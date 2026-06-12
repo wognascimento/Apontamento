@@ -85,6 +85,12 @@ namespace Apontamento.Views.Producao
                 return;
 
             ApontamentoProducaoViewModel vm = (ApontamentoProducaoViewModel)DataContext;
+            if (LinhaNovaVazia(data))
+            {
+                RemoverLinhaNovaVazia(vm, data);
+                return;
+            }
+
             var isNewRow = !data.cod.HasValue;
             try
             {
@@ -114,6 +120,9 @@ namespace Apontamento.Views.Producao
             if (e.Row.Item is not HtModel rowData)
                 return;
 
+            if (LinhaNovaVazia(rowData))
+                return;
+
             if (!rowData.num_os.HasValue)
             {
                 AplicarErroLinha(e, "Informe o número da O.S.", "num_os");
@@ -132,6 +141,27 @@ namespace Apontamento.Views.Producao
                 ErrorMessage = mensagem,
                 PropertyName = propertyName
             });
+        }
+
+        private static bool LinhaNovaVazia(HtModel data)
+        {
+            return !data.cod.HasValue &&
+                   !data.num_os.HasValue &&
+                   !data.tarefas.HasValue &&
+                   !data.quantidadehorastrabalhadas.HasValue &&
+                   !data.quantidadeunidadeproduzida.HasValue &&
+                   string.IsNullOrWhiteSpace(data.obs) &&
+                   !data.tbl_servicos_num_os.HasValue &&
+                   !data.apontamnetos_num_os.HasValue;
+        }
+
+        private void RemoverLinhaNovaVazia(ApontamentoProducaoViewModel vm, HtModel data)
+        {
+            if (vm.Hts.Contains(data))
+            {
+                vm.Hts.Remove(data);
+                DGDigitacao.Rebind();
+            }
         }
 
         private void PosicionarNaLinhaDeAdicao()
