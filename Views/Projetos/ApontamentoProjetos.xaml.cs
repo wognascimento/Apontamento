@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Telerik.Windows.Controls;
 using Telerik.Windows.Controls.GridView;
@@ -17,6 +18,7 @@ namespace Apontamento.Views.Projetos
     public partial class ApontamentoProjetos : UserControl
     {
         private readonly string _departamento;
+        private bool _centroCustoFiltroConectado;
 
         public ApontamentoProjetos(string departamento)
         {
@@ -39,12 +41,14 @@ namespace Apontamento.Views.Projetos
                     return;
                 }
 
-                nomeFuncionario.Text = vm.FuncProjeto.nome_func;
-                funcaoFuncionario.Text = vm.FuncProjeto.funcao_func;
+                nomeFuncionario.Text = vm.FuncProjeto?.nome_func;
+                funcaoFuncionario.Text = vm.FuncProjeto?.funcao_func;
                 vm.CentroCustos = await vm.GetCentroCustoAsync(_departamento);
+                await vm.PreloadClienteTemaAsync();
+                ConectarFiltroCentroCustoApontamento();
                 dataApontamento.SelectedDate = DateTime.Now.Date;
-                vm.HorasApontadas = await vm.GetHorasApontadasAsync(DateTime.Now.Date, vm.FuncProjeto.cod_func);
-                vm.FuroProjetos = await vm.GetFuroProjetosAsync(vm.FuncProjeto.cod_func);
+                vm.HorasApontadas = await vm.GetHorasApontadasAsync(DateTime.Now.Date, vm.FuncProjeto?.cod_func);
+                vm.FuroProjetos = await vm.GetFuroProjetosAsync(vm.FuncProjeto?.cod_func);
                 cmbIdTarefa.Focus();
             }
             catch (Exception ex)
@@ -82,35 +86,38 @@ namespace Apontamento.Views.Projetos
             }
         }
 
-        private async void OncmbAtividadeSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void OncmbAtividadeSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             try
             {
-                Mouse.OverrideCursor = Cursors.Wait;
                 var vm = (ApontamentoProjetosViewModel)DataContext;
                 centroCustoApontamento.Text = string.Empty;
-                centroCustoApontamento.ItemsSource = null;
+                centroCustoApontamento.SelectedItem = null;
                 DescricaoAtividade.Text = string.Empty;
 
                 if (vm?.Atividade?.tipo_custo == "CLIENTE")
                 {
-                    vm.Clientes = await vm.GetClientesAsync();
-                    centroCustoApontamento.DisplayMemberPath = "sigla";
-                    centroCustoApontamento.ItemsSource = vm.Clientes;
+                    vm.DefinirTipoCustoApontamento("CLIENTE");
+                    vm.FiltrarCentroCustoApontamento(string.Empty);
                     centroCustoApontamento.IsEnabled = true;
                 }
                 else if (vm?.Atividade?.tipo_custo == "TEMA")
                 {
-                    vm.Temas = await vm.GetTemasAsync();
-                    centroCustoApontamento.DisplayMemberPath = "temas";
-                    centroCustoApontamento.ItemsSource = vm.Temas;
+                    vm.DefinirTipoCustoApontamento("TEMA");
+                    vm.FiltrarCentroCustoApontamento(string.Empty);
                     centroCustoApontamento.IsEnabled = true;
                 }
                 else if (vm?.Atividade?.tipo_custo == "CIPOLATTI")
                 {
+                    vm.DefinirTipoCustoApontamento(null);
                     centroCustoApontamento.Text = "CIPOLATTI";
                     centroCustoApontamento.IsEnabled = false;
                     dataApontamento.Focus();
+                }
+                else
+                {
+                    vm.DefinirTipoCustoApontamento(null);
+                    centroCustoApontamento.IsEnabled = true;
                 }
 
                 if (vm?.Atividade?.observao_obrigatoria?.Trim() == "1")
@@ -120,14 +127,42 @@ namespace Apontamento.Views.Projetos
             {
                 MessageBox.Show(ex.Message);
             }
-            finally
-            {
-                Mouse.OverrideCursor = null;
-            }
         }
 
         private void OncentroCustoApontamentoSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+        }
+
+        private void OncentroCustoApontamentoTextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is not ApontamentoProjetosViewModel vm)
+                    return;
+
+                if (string.IsNullOrWhiteSpace(vm.TipoCustoApontamentoAtual))
+                    return;
+
+                vm.FiltrarCentroCustoApontamento(centroCustoApontamento.Text);
+                centroCustoApontamento.IsDropDownOpen = centroCustoApontamento.IsKeyboardFocusWithin
+                    && vm.CentroCustoApontamentoOpcoes.Count > 0;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void ConectarFiltroCentroCustoApontamento()
+        {
+            if (_centroCustoFiltroConectado)
+                return;
+
+            if (centroCustoApontamento.Template?.FindName("PART_EditableTextBox", centroCustoApontamento) is TextBox editableTextBox)
+            {
+                editableTextBox.TextChanged += OncentroCustoApontamentoTextChanged;
+                _centroCustoFiltroConectado = true;
+            }
         }
 
         private async void OnApontarHoraClick(object sender, RoutedEventArgs e)
@@ -238,8 +273,7 @@ namespace Apontamento.Views.Projetos
         {
             return combo.SelectedItem switch
             {
-                ClienteModel cliente => cliente.sigla,
-                TemaModel tema => tema.temas,
+                CentroCustoApontamentoOption opcao => opcao.Text,
                 TarefaProjetosModel tarefa => tarefa.atividade,
                 CentroCustoOption centroCusto => centroCusto.Key,
                 _ => combo.Text
@@ -286,6 +320,19 @@ namespace Apontamento.Views.Projetos
             get => _clientes;
             set { _clientes = value; RaisePropertyChanged(nameof(Clientes)); }
         }
+
+        private ObservableCollection<CentroCustoApontamentoOption> _centroCustoApontamentoOpcoes = [];
+        public ObservableCollection<CentroCustoApontamentoOption> CentroCustoApontamentoOpcoes
+        {
+            get => _centroCustoApontamentoOpcoes;
+            set { _centroCustoApontamentoOpcoes = value; RaisePropertyChanged(nameof(CentroCustoApontamentoOpcoes)); }
+        }
+
+        private string? _tipoCustoApontamentoAtual;
+        public string? TipoCustoApontamentoAtual => _tipoCustoApontamentoAtual;
+        private CentroCustoApontamentoOption[] _clienteOpcoesOrdenadas = [];
+        private CentroCustoApontamentoOption[] _temaOpcoesOrdenadas = [];
+        private const int MaximoOpcoesCentroCusto = 200;
 
         private FuncionarioProjetosModel? _funcProjeto;
         public FuncionarioProjetosModel? FuncProjeto
@@ -345,7 +392,7 @@ namespace Apontamento.Views.Projetos
         {
             using var db = DbConnectionFactory.Create();
             var data = await db.QueryAsync<TemaModel>(
-                @"SELECT * FROM comercial.temas ORDER BY temas;");
+                @"SELECT temas FROM comercial.temas ORDER BY temas;");
             return new ObservableCollection<TemaModel>(data);
         }
 
@@ -353,8 +400,113 @@ namespace Apontamento.Views.Projetos
         {
             using var db = DbConnectionFactory.Create();
             var data = await db.QueryAsync<ClienteModel>(
-                @"SELECT * FROM comercial.clientes ORDER BY sigla;");
+                @"SELECT sigla FROM comercial.clientes ORDER BY sigla;");
             return new ObservableCollection<ClienteModel>(data);
+        }
+
+        public async Task PreloadClienteTemaAsync()
+        {
+            if (Clientes.Count == 0)
+            {
+                Clientes = await GetClientesAsync();
+            }
+
+            if (Temas.Count == 0)
+            {
+                Temas = await GetTemasAsync();
+            }
+
+            if (_clienteOpcoesOrdenadas.Length == 0)
+            {
+                _clienteOpcoesOrdenadas = Clientes
+                    .Where(x => !string.IsNullOrWhiteSpace(x.sigla))
+                    .Select(x => new CentroCustoApontamentoOption(x.sigla!, "CLIENTE"))
+                    .OrderBy(x => x.NormalizedText, StringComparer.Ordinal)
+                    .ToArray();
+            }
+
+            if (_temaOpcoesOrdenadas.Length == 0)
+            {
+                _temaOpcoesOrdenadas = Temas
+                    .Where(x => !string.IsNullOrWhiteSpace(x.temas))
+                    .Select(x => new CentroCustoApontamentoOption(x.temas!, "TEMA"))
+                    .OrderBy(x => x.NormalizedText, StringComparer.Ordinal)
+                    .ToArray();
+            }
+        }
+
+        public void DefinirTipoCustoApontamento(string? tipoCusto)
+        {
+            _tipoCustoApontamentoAtual = tipoCusto;
+            CentroCustoApontamentoOpcoes.Clear();
+            RaisePropertyChanged(nameof(TipoCustoApontamentoAtual));
+        }
+
+        public void FiltrarCentroCustoApontamento(string? texto)
+        {
+            CentroCustoApontamentoOpcoes.Clear();
+
+            var origem = ObterOpcoesCentroCusto();
+            if (origem.Length == 0)
+            {
+                return;
+            }
+
+            var termo = CentroCustoApontamentoOption.Normalize(texto);
+            if (string.IsNullOrWhiteSpace(termo))
+            {
+                foreach (var opcao in origem.Take(MaximoOpcoesCentroCusto))
+                {
+                    CentroCustoApontamentoOpcoes.Add(opcao);
+                }
+
+                return;
+            }
+
+            var indiceInicial = LocalizarPrimeiroIndice(origem, termo);
+            for (var i = indiceInicial; i < origem.Length && CentroCustoApontamentoOpcoes.Count < MaximoOpcoesCentroCusto; i++)
+            {
+                var opcao = origem[i];
+                if (!opcao.NormalizedText.StartsWith(termo, StringComparison.Ordinal))
+                    break;
+
+                CentroCustoApontamentoOpcoes.Add(opcao);
+            }
+        }
+
+        private CentroCustoApontamentoOption[] ObterOpcoesCentroCusto()
+        {
+            return _tipoCustoApontamentoAtual switch
+            {
+                "CLIENTE" => _clienteOpcoesOrdenadas,
+                "TEMA" => _temaOpcoesOrdenadas,
+                _ => []
+            };
+        }
+
+        private static int LocalizarPrimeiroIndice(CentroCustoApontamentoOption[] origem, string termo)
+        {
+            var esquerda = 0;
+            var direita = origem.Length - 1;
+            var resultado = origem.Length;
+
+            while (esquerda <= direita)
+            {
+                var meio = esquerda + ((direita - esquerda) / 2);
+                var comparacao = string.Compare(origem[meio].NormalizedText, termo, StringComparison.Ordinal);
+
+                if (comparacao >= 0)
+                {
+                    resultado = meio;
+                    direita = meio - 1;
+                }
+                else
+                {
+                    esquerda = meio + 1;
+                }
+            }
+
+            return resultado == origem.Length ? 0 : resultado;
         }
 
         public async Task<FuncionarioProjetosModel?> GetFuncionarioAsync(string departamento)
@@ -455,4 +607,23 @@ namespace Apontamento.Views.Projetos
     }
 
     public sealed record CentroCustoOption(string Key);
+
+    public sealed record CentroCustoApontamentoOption
+    {
+        public CentroCustoApontamentoOption(string text, string tipo)
+        {
+            Text = text;
+            Tipo = tipo;
+            NormalizedText = Normalize(text);
+        }
+
+        public string Text { get; }
+        public string Tipo { get; }
+        public string NormalizedText { get; }
+
+        public static string Normalize(string? value)
+        {
+            return (value ?? string.Empty).Trim().ToUpperInvariant();
+        }
+    }
 }
