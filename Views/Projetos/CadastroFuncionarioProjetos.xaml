@@ -10,7 +10,7 @@
              Loaded="UserControl_Loaded">
 
     <Grid>
-        <telerik:RadGridView
+        <telerik:RadGridView ClipboardCopyMode="Cells,Header"
             x:Name="dgFuncionarios"
             AutoGenerateColumns="False"
             CanUserInsertRows="True"
@@ -51,7 +51,7 @@
 
             <telerik:RadGridView.RowDetailsTemplate>
                 <DataTemplate>
-                    <telerik:RadGridView
+                    <telerik:RadGridView ClipboardCopyMode="Cells,Header"
                         AutoGenerateColumns="False"
                         CanUserInsertRows="False"
                         CanUserDeleteRows="False"
@@ -71,3 +71,5 @@
         </telerik:RadGridView>
     </Grid>
 </UserControl>
+
+

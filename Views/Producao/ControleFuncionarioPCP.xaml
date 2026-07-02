@@ -16,7 +16,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <telerik:RadGridView
+        <telerik:RadGridView ClipboardCopyMode="Cells,Header"
             Margin="0,0,6,0"
             AutoGenerateColumns="False"
             CanUserDeleteRows="False"
@@ -58,3 +58,5 @@
         </telerik:RadGridView>
     </Grid>
 </UserControl>
+
+

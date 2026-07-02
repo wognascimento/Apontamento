@@ -58,7 +58,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <telerik:RadGridView
+            <telerik:RadGridView ClipboardCopyMode="Cells,Header"
                 x:Name="DGDigitacao"
                 Grid.Column="0"
                 Margin="0,0,6,0"
@@ -83,7 +83,7 @@
                 </telerik:RadGridView.Columns>
             </telerik:RadGridView>
 
-            <telerik:RadGridView
+            <telerik:RadGridView ClipboardCopyMode="Cells,Header"
                 Grid.Column="1"
                 Margin="5,0,0,0"
                 AutoGenerateColumns="False"
@@ -103,3 +103,5 @@
         </Grid>
     </Grid>
 </UserControl>
+
+
