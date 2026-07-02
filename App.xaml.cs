@@ -20,6 +20,7 @@ namespace Apontamento
     {
 
         private readonly string CURRENT_VERSION = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        public string CurrentVersion => CURRENT_VERSION;
 
         public App()
         {
@@ -27,7 +28,7 @@ namespace Apontamento
             ConfigureCulture();
             DapperTypeHandlers.Configure();
             LocalizationManager.Manager = new SigTelerikLocalizationManager();
-            StyleManager.ApplicationTheme = new Windows11Theme();
+            StyleManager.ApplicationTheme = new FluentTheme();
             DataBaseSettings BaseSettings = DataBaseSettings.Instance;
             BaseSettings.LoadFromConfiguration();
 
@@ -53,7 +54,7 @@ namespace Apontamento
             await CheckForUpdatesAsync();
         }
 
-        private async Task CheckForUpdatesAsync()
+        public async Task CheckForUpdatesAsync(bool showUpToDate = false)
         {
             try
             {
@@ -66,6 +67,13 @@ namespace Apontamento
                 var updateInfo = await updateChecker.CheckForUpdatesAsync();
 
                 var updateInfoJson = JsonSerializer.Serialize<UpdateInfo>(updateInfo);
+
+                if (updateInfo == null)
+                {
+                    if (showUpToDate)
+                        MessageBox.Show($"O sistema já está atualizado.\n\nVersão atual: {CURRENT_VERSION}", "Atualização do sistema", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
 
                 if (updateInfo != null)
                 {

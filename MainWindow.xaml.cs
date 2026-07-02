@@ -29,6 +29,17 @@ namespace Apontamento
 
         DataBaseSettings BaseSettings = DataBaseSettings.Instance;
 
+        private async void OnAtualizarSistemaClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            await ((App)Application.Current).CheckForUpdatesAsync(true);
+        }
+
+        private void OnSobreSistemaClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            var version = ((App)Application.Current).CurrentVersion;
+            MessageBox.Show($"Sistema Integrado de Gerenciamento - Apontamento\n\nVersão atual: {version}", "Sobre o sistema", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
         private string GetImpressosPath(string fileName)
         {
             var impressosPath = Path.Combine(BaseSettings.CaminhoSistema, "Impressos");
