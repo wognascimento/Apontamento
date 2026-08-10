@@ -83,7 +83,12 @@ namespace Apontamento.Views.Producao
         {
             using var db = DbConnectionFactory.Create();
             var data = await db.QueryAsync<FuncionarioModel>(
-                @"SELECT * FROM ht.funcionarios ORDER BY nome_apelido;");
+                @"SELECT *
+                    FROM ht.funcionarios
+                    WHERE data_demissao IS NULL
+                       OR data_demissao >= CURRENT_DATE - INTERVAL '6 years'
+                    ORDER BY nome_apelido;
+                ");
 
             return new ObservableCollection<FuncionarioModel>(data);
         }

@@ -40,6 +40,7 @@
                 <telerik:GridViewDataColumn Header="sub_setor" IsReadOnly="True" DataMemberBinding="{Binding sub_setor}" />
                 <telerik:GridViewDataColumn Header="funcao" IsReadOnly="True" DataMemberBinding="{Binding funcao}" />
                 <telerik:GridViewDataColumn Header="empresa" IsReadOnly="True" DataMemberBinding="{Binding empresa}" />
+                <telerik:GridViewDataColumn Header="contratação" IsReadOnly="True" DataMemberBinding="{Binding contratacao}" />
                 <telerik:GridViewCheckBoxColumn
                     Header="ativo"
                     UniqueName="ativo"

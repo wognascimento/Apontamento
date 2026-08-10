@@ -336,7 +336,7 @@ namespace Apontamento
             adicionarFilho(new CadastroFuncionarioProjetos("ARTES"), "CADASTRO FUNCIONÁRIO ARTES", "ApontamentoArtesCadastroFuncionario");
         }
 
-        private async void OnApontamentosProducaoClick(object sender, RoutedEventArgs e)
+        private async void OnApontamentosProducaoClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
         {
             try
             {
@@ -690,7 +690,7 @@ namespace Apontamento
                 MessageBox.Show(ex.Message);
             }
         }
-    
+
     }
 }
 

@@ -28,7 +28,7 @@ namespace Apontamento
             ConfigureCulture();
             DapperTypeHandlers.Configure();
             LocalizationManager.Manager = new SigTelerikLocalizationManager();
-            StyleManager.ApplicationTheme = new FluentTheme();
+            StyleManager.ApplicationTheme = new Office2016Theme();
             DataBaseSettings BaseSettings = DataBaseSettings.Instance;
             BaseSettings.LoadFromConfiguration();
 
