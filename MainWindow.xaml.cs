@@ -207,7 +207,7 @@ namespace Apontamento
                 documentGroup.Items.Remove(pane);
         }
 
-        private void OnDigitarApontamentoProjetosClick(object sender, RoutedEventArgs e)
+        private void OnDigitarApontamentoProjetosClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
         {
             adicionarFilho(new ApontamentoProjetos("PROJETOS"), "APONTAMENTO PROJETOS", "ApontamentoProjetos");
         }
@@ -331,9 +331,19 @@ namespace Apontamento
             adicionarFilho(new CadastroFuncionarioProjetos("PROJETOS"), "CADASTRO FUNCIONÁRIO PROJETOS", "ApontamentoProjetosCadastroFuncionario");
         }
 
+        private void OnApontamentoCadastroFuncionarioMeiClick(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new CadastroFuncionarioMei("PROJETOS"), "CADASTRO FUNCIONÁRIO MEI PROJETOS", "ApontamentoProjetosCadastroFuncionarioMei");
+        }
+
         private void OnApontamentoCadastroFuncionarioArtesClick(object sender, RoutedEventArgs e)
         {
             adicionarFilho(new CadastroFuncionarioProjetos("ARTES"), "CADASTRO FUNCIONÁRIO ARTES", "ApontamentoArtesCadastroFuncionario");
+        }
+
+        private void OnApontamentoCadastroFuncionarioMeiArtesClick(object sender, RoutedEventArgs e)
+        {
+            adicionarFilho(new CadastroFuncionarioMei("ARTES"), "CADASTRO FUNCIONÁRIO MEI ARTES", "ApontamentoArtesCadastroFuncionarioMei");
         }
 
         private async void OnApontamentosProducaoClick(object sender, Telerik.Windows.RadRoutedEventArgs e)

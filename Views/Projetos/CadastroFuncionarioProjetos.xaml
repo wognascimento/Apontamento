@@ -20,7 +20,6 @@
             IsReadOnly="False"
             ItemsSource="{Binding FuncProjetos}"
             NewRowPosition="Bottom"
-            RowDetailsVisibilityMode="VisibleWhenSelected"
             SelectedItem="{Binding FuncProjeto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             AddingNewDataItem="dgFuncionarios_AddingNewDataItem"
             CellEditEnded="dgFuncionarios_CellEditEnded"
@@ -34,6 +33,14 @@
                     <MenuItem Header="Apontar nao trabalhada" Click="ApontarNaoTrabalhada_Click"/>
                 </ContextMenu>
             </telerik:RadGridView.ContextMenu>
+
+            <telerik:RadGridView.ChildTableDefinitions>
+                <telerik:GridViewTableDefinition>
+                    <telerik:GridViewTableDefinition.Relation>
+                        <telerik:PropertyRelation ParentPropertyName="PlanosProjetos" />
+                    </telerik:GridViewTableDefinition.Relation>
+                </telerik:GridViewTableDefinition>
+            </telerik:RadGridView.ChildTableDefinitions>
 
             <telerik:RadGridView.Columns>
                 <telerik:GridViewComboBoxColumn
@@ -49,7 +56,7 @@
                 <telerik:GridViewDataColumn Header="Termino Ferias" DataMemberBinding="{Binding termino_ferias}" DataFormatString="{}{0:dd/MM/yyyy}"/>
             </telerik:RadGridView.Columns>
 
-            <telerik:RadGridView.RowDetailsTemplate>
+            <telerik:RadGridView.HierarchyChildTemplate>
                 <DataTemplate>
                     <telerik:RadGridView ClipboardCopyMode="Cells,Header"
                         AutoGenerateColumns="False"
@@ -67,7 +74,7 @@
                         </telerik:RadGridView.Columns>
                     </telerik:RadGridView>
                 </DataTemplate>
-            </telerik:RadGridView.RowDetailsTemplate>
+            </telerik:RadGridView.HierarchyChildTemplate>
         </telerik:RadGridView>
     </Grid>
 </UserControl>

@@ -272,9 +272,28 @@ namespace Apontamento.Views.Projetos
         {
             using var db = DbConnectionFactory.Create();
             var data = await db.QueryAsync<FuncionarioModel>(
-                @"SELECT *
+                @"SELECT
+                    codfun,
+                    nome_apelido,
+                    data_admissao,
+                    data_demissao,
+                    setor,
+                    funcao,
+                    local_galpao
                   FROM ht.funcionarios
                   WHERE data_demissao IS NULL
+                    AND setor LIKE @setor
+                  UNION ALL
+                  SELECT
+                    codfun,
+                    nome_apelido,
+                    admissao AS data_admissao,
+                    demissao AS data_demissao,
+                    setor,
+                    'MEI'::character varying AS funcao,
+                    local_galpao
+                  FROM ht.funcionarios_mei
+                  WHERE demissao IS NULL
                     AND setor LIKE @setor
                   ORDER BY nome_apelido;",
                 new { setor = $"%{departamento}%" });

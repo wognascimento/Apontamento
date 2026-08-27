@@ -44,6 +44,7 @@
 
             <telerik:RadMenuItem Header="Projetos">
                 <telerik:RadMenuItem Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioProjetosClick"/>
+                <telerik:RadMenuItem Header="Cadastro Funcionário MEI" Click="OnApontamentoCadastroFuncionarioMeiClick"/>
                 <telerik:RadMenuItem x:Name="DigitarProjetos" Header="Apontar" Click="OnDigitarApontamentoProjetosClick"/>
                 <telerik:RadMenuItem Header="Consultas">
                     <telerik:RadMenuItem Header="Pendência" Click="OnApontamentoProjetosFuroClick"/>
@@ -58,6 +59,7 @@
 
             <telerik:RadMenuItem Header="Artes">
                 <telerik:RadMenuItem Header="Cadastro Funcionário" Click="OnApontamentoCadastroFuncionarioArtesClick"/>
+                <telerik:RadMenuItem Header="Cadastro Funcionário MEI" Click="OnApontamentoCadastroFuncionarioMeiArtesClick"/>
                 <telerik:RadMenuItem x:Name="DigitarArtes" Header="Apontar" Click="OnDigitarApontamentoArtesClick"/>
                 <telerik:RadMenuItem Header="Consultas">
                     <telerik:RadMenuItem Header="Pendência" Click="OnApontamentoArtesFuroClick"/>
