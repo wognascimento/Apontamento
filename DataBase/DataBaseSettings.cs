@@ -11,6 +11,7 @@ namespace Apontamento.DataBase
         private const string EnvDatabase = "APONTAMENTO_DB_NAME";
         private const string EnvUsername = "APONTAMENTO_DB_USER";
         private const string EnvPassword = "APONTAMENTO_DB_PASSWORD";
+        private const string DefaultUpdateUrl = "https://atualizasig.cipolatti.com.br/downloads/apontamento/version.json";
 
         public string? Host { get; set; }
         public string? Database { get; set; }
@@ -31,7 +32,11 @@ namespace Apontamento.DataBase
             Username = ReadSetting("Username", EnvUsername, Environment.UserName);
             Password = ReadSetting("Password", EnvPassword, null);
             CaminhoSistema = ReadSetting("SystemPath", null, CaminhoSistema);
-            UpdateInfoUrl = ReadSetting("UpdateInfoUrl", null, "http://192.168.0.49/downloads/apontamento/version.json");
+            UpdateInfoUrl = ReadSetting("UpdateInfoUrl", "APONTAMENTO_UPDATE_URL", DefaultUpdateUrl).Trim();
+            if (Uri.TryCreate(UpdateInfoUrl, UriKind.Absolute, out var url)
+                && url.Host == "192.168.0.49"
+                && string.Equals(url.AbsolutePath, "/downloads/apontamento/version.json", StringComparison.OrdinalIgnoreCase))
+                UpdateInfoUrl = DefaultUpdateUrl;
 
             RefreshConnectionString();
         }

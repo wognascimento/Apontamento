@@ -7,9 +7,9 @@
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ApplicationIcon>icones\logo.ico</ApplicationIcon>
-    <Version>2.0.0.7</Version>
-    <AssemblyVersion>2.0.0.7</AssemblyVersion>
-    <FileVersion>2.0.0.7</FileVersion>
+    <Version>2.0.0.8</Version>
+    <AssemblyVersion>2.0.0.8</AssemblyVersion>
+    <FileVersion>2.0.0.8</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="icones\configuracao-de-dados-windows-metro-16.png" />
